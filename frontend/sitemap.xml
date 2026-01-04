@@ -6,7 +6,7 @@
 
     <!-- Page d'accueil -->
     <url>
-        <loc>https://lavoutesavoie.fr/</loc>
+        <loc>https://lavoute.synovizion.fr/</loc>
         <lastmod>2025-01-04</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
@@ -14,28 +14,28 @@
 
     <!-- Sections principales (ancres) -->
     <url>
-        <loc>https://lavoutesavoie.fr/#about</loc>
+        <loc>https://lavoute.synovizion.fr/#about</loc>
         <lastmod>2025-01-04</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
 
     <url>
-        <loc>https://lavoutesavoie.fr/#menu</loc>
+        <loc>https://lavoute.synovizion.fr/#menu</loc>
         <lastmod>2025-01-04</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
 
     <url>
-        <loc>https://lavoutesavoie.fr/#gallery</loc>
+        <loc>https://lavoute.synovizion.fr/#gallery</loc>
         <lastmod>2025-01-04</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>
 
     <url>
-        <loc>https://lavoutesavoie.fr/#reservation</loc>
+        <loc>https://lavoute.synovizion.fr/#reservation</loc>
         <lastmod>2025-01-04</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.9</priority>
@@ -43,14 +43,14 @@
 
     <!-- Pages légales -->
     <url>
-        <loc>https://lavoutesavoie.fr/mentions-legales.html</loc>
+        <loc>https://lavoute.synovizion.fr/mentions-legales.html</loc>
         <lastmod>2025-01-04</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
     </url>
 
     <url>
-        <loc>https://lavoutesavoie.fr/confidentialite.html</loc>
+        <loc>https://lavoute.synovizion.fr/confidentialite.html</loc>
         <lastmod>2025-01-04</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>

@@ -7,7 +7,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://lavoutesavoie.fr/sitemap.xml
+Sitemap: https://lavoute.synovizion.fr/sitemap.xml
 
 # Block API endpoints from indexing
 Disallow: /api/

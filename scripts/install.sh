@@ -15,7 +15,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-DOMAIN="lavoutesavoie.fr"
+DOMAIN="lavoute.synovizion.fr"
 APP_DIR="/var/www/lavoutesavoie"
 REPO_URL="https://github.com/jEFFzYz/LAVOUTESAVOIE.git"
 
@@ -160,7 +160,7 @@ cat > /etc/nginx/sites-available/lavoutesavoie-temp << 'EOF'
 server {
     listen 80;
     listen [::]:80;
-    server_name lavoutesavoie.fr www.lavoutesavoie.fr;
+    server_name lavoute.synovizion.fr;
 
     root /var/www/lavoutesavoie/frontend;
     index index.html;
@@ -223,7 +223,7 @@ mkdir -p /var/www/certbot
 
 echo -e "${BLUE}Pour obtenir le certificat SSL, exécutez la commande suivante:${NC}"
 echo ""
-echo -e "  ${GREEN}sudo certbot --nginx -d lavoutesavoie.fr -d www.lavoutesavoie.fr${NC}"
+echo -e "  ${GREEN}sudo certbot --nginx -d lavoute.synovizion.fr${NC}"
 echo ""
 echo -e "${BLUE}Après l'obtention du certificat, remplacez la configuration Nginx:${NC}"
 echo ""
@@ -241,7 +241,7 @@ echo "║                                                               ║"
 echo "╠═══════════════════════════════════════════════════════════════╣"
 echo "║                                                               ║"
 echo "║   📁 Répertoire: /var/www/lavoutesavoie                       ║"
-echo "║   🌐 URL: http://lavoutesavoie.fr (HTTPS après certbot)       ║"
+echo "║   🌐 URL: http://lavoute.synovizion.fr                         ║"
 echo "║   🔧 API: http://localhost:3000                               ║"
 echo "║                                                               ║"
 echo "╠═══════════════════════════════════════════════════════════════╣"
@@ -252,7 +252,7 @@ echo "║   1. Éditez /var/www/lavoutesavoie/backend/.env               ║"
 echo "║      avec vos paramètres SMTP OVH                             ║"
 echo "║                                                               ║"
 echo "║   2. Obtenez le certificat SSL:                               ║"
-echo "║      sudo certbot --nginx -d lavoutesavoie.fr                 ║"
+echo "║      sudo certbot --nginx -d lavoute.synovizion.fr            ║"
 echo "║                                                               ║"
 echo "║   3. Redémarrez l'application:                                ║"
 echo "║      pm2 restart lavoute-api                                  ║"
