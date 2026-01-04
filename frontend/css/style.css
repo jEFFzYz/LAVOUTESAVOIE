@@ -562,6 +562,67 @@ address {
 }
 
 /* --------------------------------------------------------------------------
+   Facade Section
+   -------------------------------------------------------------------------- */
+.facade-section {
+    padding: var(--space-3xl) 0;
+    background-color: var(--color-bg-primary);
+}
+
+.facade-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.facade-image-container {
+    position: relative;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+}
+
+.facade-image-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform var(--transition-slow);
+}
+
+.facade-image-container:hover img {
+    transform: scale(1.02);
+}
+
+.facade-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(10, 10, 10, 0.9), transparent);
+    padding: var(--space-2xl) var(--space-xl) var(--space-xl);
+}
+
+.facade-info {
+    text-align: center;
+}
+
+.facade-address {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-lg);
+    color: var(--color-text-primary);
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+    .facade-section {
+        padding: var(--space-2xl) 0;
+    }
+
+    .facade-address {
+        font-size: var(--font-size-base);
+    }
+}
+
+/* --------------------------------------------------------------------------
    Section Headers
    -------------------------------------------------------------------------- */
 .section-label {
