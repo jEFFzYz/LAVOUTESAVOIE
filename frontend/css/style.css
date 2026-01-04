@@ -1109,6 +1109,75 @@ address {
     font-style: italic;
 }
 
+/* Menu Enfant - Section visible */
+.menu-enfant-section {
+    margin-top: var(--space-3xl);
+    display: flex;
+    justify-content: center;
+}
+
+.menu-enfant-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xl);
+    padding: var(--space-xl) var(--space-2xl);
+    background: linear-gradient(135deg, var(--color-bg-tertiary), var(--color-bg-card));
+    border: 2px solid var(--color-accent);
+    border-radius: var(--border-radius-lg);
+    max-width: 600px;
+    box-shadow: var(--shadow-glow);
+    transition: transform var(--transition-base);
+}
+
+.menu-enfant-card:hover {
+    transform: translateY(-4px);
+}
+
+.menu-enfant-icon {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    color: var(--color-accent);
+    background: rgba(201, 169, 98, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md);
+}
+
+.menu-enfant-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.menu-enfant-content h3 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    font-weight: 500;
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+}
+
+.menu-enfant-content p {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+}
+
+@media (max-width: 576px) {
+    .menu-enfant-card {
+        flex-direction: column;
+        text-align: center;
+        padding: var(--space-lg);
+    }
+
+    .menu-enfant-icon {
+        width: 50px;
+        height: 50px;
+    }
+}
+
 /* --------------------------------------------------------------------------
    Gallery Section
    -------------------------------------------------------------------------- */
@@ -1187,7 +1256,7 @@ address {
 
 /* Booking Widget */
 .booking-widget {
-    background: linear-gradient(145deg, #2d8cb8, #1a6b94);
+    background: linear-gradient(145deg, var(--color-accent), var(--color-accent-dark));
     border-radius: var(--border-radius-lg);
     padding: var(--space-lg);
     box-shadow: var(--shadow-xl);
@@ -1286,7 +1355,7 @@ address {
     justify-content: center;
     font-size: var(--font-size-lg);
     font-weight: 500;
-    color: #1a6b94;
+    color: var(--color-accent-dark);
     background: white;
     border-radius: var(--border-radius-md);
     border: 2px solid transparent;
@@ -1325,7 +1394,7 @@ address {
     background: white;
     border-radius: var(--border-radius-md);
     border: 2px solid transparent;
-    color: #1a6b94;
+    color: var(--color-accent-dark);
     font-weight: 500;
     transition: all var(--transition-fast);
 }
@@ -1431,7 +1500,7 @@ address {
 
 .calendar-day.active {
     background: white;
-    color: #1a6b94;
+    color: var(--color-accent-dark);
     font-weight: 600;
 }
 
@@ -1496,12 +1565,12 @@ address {
 
 .time-slot-item.active {
     background: white;
-    color: #1a6b94;
+    color: var(--color-accent-dark);
 }
 
 .time-slot-item.active .time-indicator {
-    background: #1a6b94;
-    border-color: #1a6b94;
+    background: var(--color-accent-dark);
+    border-color: var(--color-accent-dark);
 }
 
 /* Indicateur vert */
@@ -1545,7 +1614,7 @@ address {
     background: white;
     border-radius: var(--border-radius-full);
     border: 2px solid transparent;
-    color: #1a6b94;
+    color: var(--color-accent-dark);
     font-size: var(--font-size-sm);
     font-weight: 500;
     transition: all var(--transition-fast);
@@ -1563,7 +1632,7 @@ address {
 
 .time-slot.disabled {
     background: rgba(255, 255, 255, 0.3);
-    color: rgba(26, 107, 148, 0.5);
+    color: rgba(166, 139, 75, 0.5);
     cursor: not-allowed;
 }
 
@@ -1571,24 +1640,25 @@ address {
 .booking-submit {
     width: 100%;
     padding: var(--space-md) var(--space-xl);
-    background: white;
-    color: #1a6b94;
+    background: var(--color-bg-primary);
+    color: var(--color-accent);
     font-size: var(--font-size-lg);
     font-weight: 600;
     border-radius: var(--border-radius-md);
-    border: none;
+    border: 2px solid var(--color-bg-primary);
     cursor: pointer;
     transition: all var(--transition-fast);
     margin-top: var(--space-md);
 }
 
 .booking-submit:hover {
-    background: #f0f0f0;
+    background: var(--color-bg-secondary);
     transform: translateY(-2px);
 }
 
 .booking-submit:disabled {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(0, 0, 0, 0.3);
+    color: rgba(201, 169, 98, 0.5);
     cursor: not-allowed;
     transform: none;
 }
@@ -1633,7 +1703,7 @@ address {
 }
 
 .contact-form-panel .back-btn {
-    color: #1a6b94;
+    color: var(--color-accent-dark);
     margin: 0;
     padding: var(--space-sm);
 }
@@ -1676,7 +1746,7 @@ address {
 .modify-link {
     background: none;
     border: none;
-    color: #1a6b94;
+    color: var(--color-accent-dark);
     font-size: var(--font-size-sm);
     cursor: pointer;
     text-decoration: underline;
@@ -1756,7 +1826,7 @@ address {
 .civility-option input[type="radio"] {
     width: 18px;
     height: 18px;
-    accent-color: #1a6b94;
+    accent-color: var(--color-accent-dark);
 }
 
 .civility-option span {
@@ -1830,8 +1900,8 @@ address {
 
 .contact-form-panel .field-group input:focus,
 .contact-form-panel .field-group textarea:focus {
-    border-color: #1a6b94;
-    box-shadow: 0 0 0 3px rgba(26, 107, 148, 0.1);
+    border-color: var(--color-accent-dark);
+    box-shadow: 0 0 0 3px rgba(166, 139, 75, 0.1);
 }
 
 .contact-form-panel .field-group.checkbox {
@@ -1844,7 +1914,7 @@ address {
     width: 18px;
     height: 18px;
     margin-top: 2px;
-    accent-color: #1a6b94;
+    accent-color: var(--color-accent-dark);
     flex-shrink: 0;
 }
 
@@ -1856,11 +1926,11 @@ address {
 }
 
 .contact-form-panel .field-group.checkbox label a {
-    color: #1a6b94;
+    color: var(--color-accent-dark);
 }
 
 .contact-form-panel .booking-submit {
-    background: #1a6b94;
+    background: var(--color-accent-dark);
     color: white;
     margin-top: var(--space-lg);
 }
