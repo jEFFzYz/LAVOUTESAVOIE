@@ -940,6 +940,7 @@
         function showAdminPanel() {
             loginScreen.style.display = 'none';
             adminPanel.classList.add('active');
+            loadHours(); // Load hours configuration from API
         }
 
         // ==========================================================================
@@ -1148,6 +1149,17 @@
         // ==========================================================================
         // Hours
         // ==========================================================================
+        // Day name to JS day number mapping
+        const DAY_MAP = {
+            'dimanche': 0,
+            'lundi': 1,
+            'mardi': 2,
+            'mercredi': 3,
+            'jeudi': 4,
+            'vendredi': 5,
+            'samedi': 6
+        };
+
         // Toggle closed days
         document.querySelectorAll('[data-closed]').forEach(checkbox => {
             checkbox.addEventListener('change', () => {
@@ -1160,18 +1172,92 @@
             });
         });
 
-        function saveHours() {
+        // Load hours from API
+        async function loadHours() {
+            try {
+                const response = await fetch(`${API_URL}/admin/settings`, {
+                    headers: { 'X-API-Key': apiKey }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    const config = result.data;
+
+                    // Set closed days checkboxes
+                    const closedDays = config.closedDays || [3, 4];
+                    document.querySelectorAll('[data-closed]').forEach(checkbox => {
+                        const day = checkbox.dataset.day;
+                        const dayNum = DAY_MAP[day];
+                        const isClosed = closedDays.includes(dayNum);
+                        checkbox.checked = isClosed;
+
+                        // Disable inputs for closed days
+                        const inputs = document.querySelectorAll(`[data-day="${day}"][data-service]`);
+                        inputs.forEach(input => {
+                            input.disabled = isClosed;
+                            if (isClosed) input.value = '';
+                        });
+                    });
+
+                    // Set hours if saved
+                    if (config.hours) {
+                        Object.keys(config.hours).forEach(day => {
+                            const dayHours = config.hours[day];
+                            const midiInput = document.querySelector(`[data-day="${day}"][data-service="midi"]`);
+                            const soirInput = document.querySelector(`[data-day="${day}"][data-service="soir"]`);
+                            if (midiInput && dayHours.midi) midiInput.value = dayHours.midi;
+                            if (soirInput && dayHours.soir) soirInput.value = dayHours.soir;
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading hours:', error);
+            }
+        }
+
+        async function saveHours() {
             const hours = {};
+            const closedDays = [];
+
             document.querySelectorAll('.hour-row').forEach(row => {
                 const day = row.querySelector('.day-name').textContent.toLowerCase();
                 const midi = row.querySelector('[data-service="midi"]').value;
                 const soir = row.querySelector('[data-service="soir"]').value;
                 const closed = row.querySelector('[data-closed]').checked;
                 hours[day] = { midi, soir, closed };
+
+                if (closed) {
+                    closedDays.push(DAY_MAP[day]);
+                }
             });
 
-            localStorage.setItem('restaurant_hours', JSON.stringify(hours));
-            showToast('Horaires enregistrés', 'success');
+            // Check if Sunday dinner is closed (soir empty or disabled)
+            const dimancheSoir = document.querySelector('[data-day="dimanche"][data-service="soir"]');
+            const sundayDinnerClosed = !dimancheSoir.value || dimancheSoir.disabled;
+
+            try {
+                const response = await fetch(`${API_URL}/admin/settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': apiKey
+                    },
+                    body: JSON.stringify({
+                        hours,
+                        closedDays,
+                        sundayDinnerClosed
+                    })
+                });
+
+                if (response.ok) {
+                    showToast('Horaires enregistrés', 'success');
+                } else {
+                    showToast('Erreur lors de la sauvegarde', 'error');
+                }
+            } catch (error) {
+                console.error('Save hours error:', error);
+                showToast('Erreur lors de la sauvegarde', 'error');
+            }
         }
 
         function addClosureDate() {

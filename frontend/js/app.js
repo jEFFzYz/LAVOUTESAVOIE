@@ -13,10 +13,155 @@
         API_URL: '/api',
         SCROLL_OFFSET: 80,
         ANIMATION_THRESHOLD: 0.1,
-        CLOSED_DAYS: [3, 4], // Mercredi et Jeudi
+        CLOSED_DAYS: [3, 4], // Default: Mercredi et Jeudi (will be updated from API)
+        SUNDAY_DINNER_CLOSED: true, // Default (will be updated from API)
         MONTHS_FR: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
         DAYS_FR: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
     };
+
+    // Load configuration from API
+    async function loadConfig() {
+        try {
+            const response = await fetch(`${CONFIG.API_URL}/availability/config`);
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success && result.data) {
+                    CONFIG.CLOSED_DAYS = result.data.closedDays || [3, 4];
+                    CONFIG.SUNDAY_DINNER_CLOSED = result.data.sundayDinnerClosed !== false;
+                    CONFIG.HOURS = result.data.hours || null;
+
+                    // Update opening hours display on the page
+                    updateOpeningHoursDisplay();
+                }
+            }
+        } catch (error) {
+            console.log('Using default config');
+        }
+    }
+
+    // Update the opening hours display based on API config
+    function updateOpeningHoursDisplay() {
+        const container = document.getElementById('opening-hours-display');
+        if (!container) return;
+
+        const dayNames = {
+            0: 'Dimanche',
+            1: 'Lundi',
+            2: 'Mardi',
+            3: 'Mercredi',
+            4: 'Jeudi',
+            5: 'Vendredi',
+            6: 'Samedi'
+        };
+
+        const dayNamesShort = {
+            0: 'Dim',
+            1: 'Lun',
+            2: 'Mar',
+            3: 'Mer',
+            4: 'Jeu',
+            5: 'Ven',
+            6: 'Sam'
+        };
+
+        // Build hours display from config
+        let html = '';
+
+        // Check if all days are closed
+        const allClosed = CONFIG.CLOSED_DAYS.length === 7;
+
+        if (allClosed) {
+            html = '<p class="closed">Restaurant actuellement fermé</p>';
+            container.innerHTML = html;
+            return;
+        }
+
+        // Find closed days names
+        const closedDaysNames = CONFIG.CLOSED_DAYS.map(d => dayNames[d].toLowerCase()).join(' et ');
+
+        if (CONFIG.HOURS) {
+            // Group days by similar hours
+            const openDays = [];
+            const sundayHours = CONFIG.HOURS.dimanche;
+
+            // Get regular days (not Sunday, not closed)
+            ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'].forEach((day, index) => {
+                const dayNum = index + 1; // lundi=1, mardi=2, etc.
+                const dayHours = CONFIG.HOURS[day];
+                if (!CONFIG.CLOSED_DAYS.includes(dayNum) && dayHours && !dayHours.closed && (dayHours.midi || dayHours.soir)) {
+                    openDays.push({
+                        name: dayNamesShort[dayNum],
+                        midi: dayHours.midi || '',
+                        soir: dayHours.soir || ''
+                    });
+                }
+            });
+
+            // Group days with same hours
+            if (openDays.length > 0) {
+                const firstDay = openDays[0];
+                const sameHoursDays = openDays.filter(d => d.midi === firstDay.midi && d.soir === firstDay.soir);
+                const daysList = sameHoursDays.map(d => d.name).join(', ');
+
+                let hoursText = '';
+                if (firstDay.midi) {
+                    hoursText += firstDay.midi.replace(/-/g, 'h-').replace(/:/g, 'h');
+                    if (!hoursText.endsWith('h')) hoursText += 'h';
+                }
+                if (firstDay.midi && firstDay.soir) hoursText += ' & ';
+                if (firstDay.soir) {
+                    hoursText += firstDay.soir.replace(/-/g, 'h-').replace(/:/g, 'h');
+                    if (!hoursText.endsWith('h')) hoursText += 'h';
+                }
+
+                if (hoursText) {
+                    html += `<p>${daysList} : ${hoursText}</p>`;
+                }
+            }
+
+            // Sunday (if open)
+            if (!CONFIG.CLOSED_DAYS.includes(0) && sundayHours && !sundayHours.closed) {
+                let sundayText = 'Dimanche : ';
+                if (sundayHours.midi) {
+                    sundayText += sundayHours.midi.replace(/-/g, 'h-').replace(/:/g, 'h');
+                    if (!sundayText.endsWith('h')) sundayText += 'h';
+                }
+                if (!CONFIG.SUNDAY_DINNER_CLOSED && sundayHours.soir) {
+                    sundayText += ' & ' + sundayHours.soir.replace(/-/g, 'h-').replace(/:/g, 'h');
+                    if (!sundayText.endsWith('h')) sundayText += 'h';
+                }
+                if (sundayHours.midi || sundayHours.soir) {
+                    html += `<p>${sundayText}</p>`;
+                }
+            }
+        }
+
+        // Fallback if no hours were added but we have open days
+        if (!html && CONFIG.CLOSED_DAYS.length < 7) {
+            const openDaysShort = [];
+            for (let i = 1; i <= 6; i++) { // Lundi to Samedi
+                if (!CONFIG.CLOSED_DAYS.includes(i)) {
+                    openDaysShort.push(dayNamesShort[i]);
+                }
+            }
+            if (openDaysShort.length > 0) {
+                html += `<p>${openDaysShort.join(', ')} : 12h-14h & 19h-21h30</p>`;
+            }
+            if (!CONFIG.CLOSED_DAYS.includes(0)) {
+                html += `<p>Dimanche : 12h-14h${!CONFIG.SUNDAY_DINNER_CLOSED ? ' & 19h-21h30' : ''}</p>`;
+            }
+        }
+
+        // Add closed days
+        if (CONFIG.CLOSED_DAYS.length > 0 && CONFIG.CLOSED_DAYS.length < 7) {
+            html += `<p class="closed">Fermé ${closedDaysNames}</p>`;
+        }
+
+        // Only update if we have content
+        if (html) {
+            container.innerHTML = html;
+        }
+    }
 
     // ==========================================================================
     // State
@@ -412,11 +557,12 @@
 
     function updateTimeSlots(date) {
         const isSunday = date.getDay() === 0;
+        const disableDinner = isSunday && CONFIG.SUNDAY_DINNER_CLOSED;
 
         // Handle new time-slot-item format (vertical list)
         const dinnerSlotItems = document.querySelectorAll('#dinner-service .time-slot-item');
         dinnerSlotItems.forEach(slot => {
-            if (isSunday) {
+            if (disableDinner) {
                 slot.classList.add('disabled');
                 slot.disabled = true;
             } else {
@@ -428,7 +574,7 @@
         // Legacy format support
         const dinnerSlots = document.querySelectorAll('.time-service:last-child .time-slot');
         dinnerSlots.forEach(slot => {
-            if (isSunday) {
+            if (disableDinner) {
                 slot.classList.add('disabled');
                 slot.disabled = true;
             } else {
@@ -827,10 +973,14 @@
     // ==========================================================================
     // Initialize
     // ==========================================================================
-    function init() {
+    async function init() {
         initPreloader();
         initNavigation();
         initMenuTabs();
+
+        // Load config from API before initializing booking widget
+        await loadConfig();
+
         initBookingWidget();
         initScrollAnimations();
         initGallery();

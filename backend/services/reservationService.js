@@ -369,6 +369,22 @@ class ReservationService {
             totalCapacity
         };
     }
+
+    /**
+     * Update restaurant configuration
+     */
+    static async updateConfig(updates) {
+        await this.initDB();
+        const currentConfig = await this.getConfig();
+
+        const updatedConfig = {
+            ...currentConfig,
+            ...updates
+        };
+
+        await fs.writeFile(CONFIG_PATH, JSON.stringify(updatedConfig, null, 2));
+        return updatedConfig;
+    }
 }
 
 module.exports = ReservationService;

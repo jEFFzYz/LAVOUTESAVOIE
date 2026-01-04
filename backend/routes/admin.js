@@ -259,4 +259,68 @@ router.get('/dashboard/:date', async (req, res) => {
     }
 });
 
+/**
+ * GET /api/admin/settings
+ * Get restaurant settings (hours, closed days, etc.)
+ */
+router.get('/settings', async (req, res) => {
+    try {
+        const config = await ReservationService.getConfig();
+        res.json({
+            success: true,
+            data: config
+        });
+    } catch (error) {
+        console.error('Get settings error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Une erreur est survenue'
+        });
+    }
+});
+
+/**
+ * PUT /api/admin/settings
+ * Update restaurant settings
+ */
+router.put('/settings', [
+    body('closedDays').optional().isArray(),
+    body('sundayDinnerClosed').optional().isBoolean(),
+    body('hours').optional().isObject()
+], async (req, res) => {
+    try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                success: false,
+                message: errors.array()[0].msg
+            });
+        }
+
+        const updated = await ReservationService.updateConfig(req.body);
+        res.json({
+            success: true,
+            message: 'Paramètres mis à jour',
+            data: updated
+        });
+    } catch (error) {
+        console.error('Update settings error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Une erreur est survenue'
+        });
+    }
+});
+
+/**
+ * GET /api/admin/verify
+ * Verify API key is valid
+ */
+router.get('/verify', (req, res) => {
+    res.json({
+        success: true,
+        message: 'Clé API valide'
+    });
+});
+
 module.exports = router;

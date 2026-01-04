@@ -10,6 +10,34 @@ const { query, validationResult } = require('express-validator');
 const ReservationService = require('../services/reservationService');
 
 /**
+ * GET /api/availability/config
+ * Get public restaurant configuration (for frontend booking widget)
+ */
+router.get('/config', async (req, res) => {
+    try {
+        const config = await ReservationService.getConfig();
+        res.json({
+            success: true,
+            data: {
+                closedDays: config.closedDays || [3, 4],
+                sundayDinnerClosed: config.sundayDinnerClosed !== false,
+                timeSlots: config.timeSlots || {
+                    lunch: ['12:00', '12:30', '13:00'],
+                    dinner: ['19:00', '19:30', '20:00', '20:30']
+                },
+                hours: config.hours || null
+            }
+        });
+    } catch (error) {
+        console.error('Config error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Une erreur est survenue'
+        });
+    }
+});
+
+/**
  * GET /api/availability
  * Check availability for a specific date
  */
@@ -31,14 +59,18 @@ router.get('/', [
         const selectedDate = new Date(date);
         const dayOfWeek = selectedDate.getDay();
 
+        // Get config for closed days
+        const config = await ReservationService.getConfig();
+        const closedDays = config.closedDays || [3, 4];
+
         // Check if restaurant is closed
-        if (dayOfWeek === 3 || dayOfWeek === 4) {
+        if (closedDays.includes(dayOfWeek)) {
             return res.json({
                 success: true,
                 data: {
                     date,
                     closed: true,
-                    message: 'Restaurant fermé le mercredi et le jeudi',
+                    message: 'Restaurant fermé ce jour',
                     slots: []
                 }
             });
@@ -47,8 +79,9 @@ router.get('/', [
         // Get available time slots
         const slots = await ReservationService.getAvailableSlots(date);
 
-        // Filter Sunday dinner
-        const filteredSlots = dayOfWeek === 0
+        // Filter Sunday dinner if configured
+        const sundayDinnerClosed = config.sundayDinnerClosed !== false;
+        const filteredSlots = (dayOfWeek === 0 && sundayDinnerClosed)
             ? slots.filter(slot => slot.time < '19:00')
             : slots;
 
