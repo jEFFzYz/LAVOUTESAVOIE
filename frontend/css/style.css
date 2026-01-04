@@ -707,6 +707,48 @@ address {
     color: var(--color-accent);
 }
 
+/* Maître Restaurateur Section */
+.maitre-restaurateur-section {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xl);
+    padding: var(--space-2xl);
+    background: linear-gradient(135deg, var(--color-bg-tertiary), rgba(201, 169, 98, 0.1));
+    border: 1px solid var(--color-accent);
+    border-radius: var(--border-radius-lg);
+    margin-bottom: var(--space-3xl);
+}
+
+.maitre-badge-large {
+    flex-shrink: 0;
+}
+
+.maitre-badge-large img {
+    width: 120px;
+    height: auto;
+}
+
+.maitre-content h3 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-2xl);
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+}
+
+.maitre-content .maitre-subtitle {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-md);
+}
+
+.maitre-content p {
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+}
+
 /* Values Grid */
 .values-grid {
     display: grid;
@@ -1526,6 +1568,16 @@ address {
         margin-left: auto;
         margin-right: var(--space-lg);
         width: fit-content;
+    }
+
+    .maitre-restaurateur-section {
+        flex-direction: column;
+        text-align: center;
+        padding: var(--space-lg);
+    }
+
+    .maitre-badge-large img {
+        width: 80px;
     }
 
     .values-grid {
