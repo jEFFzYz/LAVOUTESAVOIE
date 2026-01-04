@@ -1338,7 +1338,7 @@ address {
     visibility: hidden;
 }
 
-/* Time Slots */
+/* Time Slots - Liste Verticale Style Zenchef */
 .time-service {
     margin-bottom: var(--space-md);
 }
@@ -1352,9 +1352,78 @@ address {
     font-size: var(--font-size-sm);
     color: rgba(255, 255, 255, 0.7);
     margin-bottom: var(--space-sm);
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+/* Liste verticale des créneaux */
+.time-slots-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.time-slot-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: var(--border-radius-md);
+    color: white;
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: left;
+    width: 100%;
+}
+
+.time-slot-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.time-slot-item.active {
+    background: white;
+    color: #1a6b94;
+}
+
+.time-slot-item.active .time-indicator {
+    background: #1a6b94;
+    border-color: #1a6b94;
+}
+
+/* Indicateur vert */
+.time-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #4ade80;
+    border: 2px solid #4ade80;
+    flex-shrink: 0;
+}
+
+.time-slot-item:not(.active) .time-indicator {
+    background: transparent;
+    border-color: #4ade80;
+}
+
+.time-slot-item.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.time-slot-item.disabled .time-indicator {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.time-value {
     font-weight: 500;
 }
 
+/* Old styles kept for backward compatibility */
 .time-slots {
     display: flex;
     flex-wrap: wrap;
@@ -1414,7 +1483,283 @@ address {
     transform: none;
 }
 
-/* Contact Form */
+/* Contact Form - Style Zenchef */
+.contact-step {
+    width: 100%;
+}
+
+.contact-step.hidden {
+    display: none;
+}
+
+.contact-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: var(--space-xl);
+    background: white;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+}
+
+.contact-form-panel {
+    padding: var(--space-xl);
+    background: white;
+}
+
+.contact-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid #eee;
+}
+
+.contact-header h3 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.contact-form-panel .back-btn {
+    color: #1a6b94;
+    margin: 0;
+    padding: var(--space-sm);
+}
+
+.contact-form-panel .back-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Récapitulatif à droite */
+.reservation-summary-panel {
+    background: #f5f5f5;
+    padding: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.summary-card {
+    background: white;
+    border-radius: var(--border-radius-md);
+    padding: var(--space-lg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.summary-header h4 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-lg);
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.modify-link {
+    background: none;
+    border: none;
+    color: #1a6b94;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.modify-link:hover {
+    color: #1a5a7a;
+}
+
+.summary-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.summary-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    color: #333;
+}
+
+.summary-row svg {
+    width: 20px;
+    height: 20px;
+    color: #666;
+    flex-shrink: 0;
+}
+
+.summary-row span {
+    font-size: var(--font-size-base);
+}
+
+/* Privacy Accordion */
+.privacy-accordion {
+    margin-top: auto;
+}
+
+.privacy-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    width: 100%;
+    background: none;
+    border: none;
+    padding: var(--space-md) 0;
+    color: #666;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    text-align: left;
+}
+
+.privacy-toggle svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.privacy-toggle .chevron {
+    margin-left: auto;
+}
+
+/* Civility Options */
+.civility-options {
+    display: flex;
+    gap: var(--space-lg);
+    margin-top: var(--space-xs);
+}
+
+.civility-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    cursor: pointer;
+}
+
+.civility-option input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #1a6b94;
+}
+
+.civility-option span {
+    font-size: var(--font-size-base);
+    color: #333;
+}
+
+/* Phone Input with Country Select */
+.phone-input-wrapper {
+    display: flex;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    background: white;
+}
+
+.country-select {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-md);
+    background: #f9f9f9;
+    border-right: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.flag-icon {
+    font-size: 1.2rem;
+}
+
+.chevron-down {
+    width: 14px;
+    height: 14px;
+    color: #666;
+}
+
+.phone-input-wrapper input {
+    border: none !important;
+    border-radius: 0 !important;
+    background: white !important;
+}
+
+.phone-input-wrapper input:focus {
+    box-shadow: none;
+}
+
+/* Optional label */
+.optional {
+    color: #999;
+    font-weight: 400;
+}
+
+/* Contact Fields in white panel */
+.contact-form-panel .contact-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.contact-form-panel .field-group label {
+    color: #333;
+    font-weight: 500;
+}
+
+.contact-form-panel .field-group input,
+.contact-form-panel .field-group textarea {
+    background: white;
+    border: 1px solid #ddd;
+    color: #1a1a1a;
+}
+
+.contact-form-panel .field-group input:focus,
+.contact-form-panel .field-group textarea:focus {
+    border-color: #1a6b94;
+    box-shadow: 0 0 0 3px rgba(26, 107, 148, 0.1);
+}
+
+.contact-form-panel .field-group.checkbox {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-sm);
+}
+
+.contact-form-panel .field-group.checkbox input {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: #1a6b94;
+    flex-shrink: 0;
+}
+
+.contact-form-panel .field-group.checkbox label {
+    font-size: var(--font-size-sm);
+    color: #555;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.contact-form-panel .field-group.checkbox label a {
+    color: #1a6b94;
+}
+
+.contact-form-panel .booking-submit {
+    background: #1a6b94;
+    color: white;
+    margin-top: var(--space-lg);
+}
+
+.contact-form-panel .booking-submit:hover {
+    background: #1a5a7a;
+}
+
+/* Legacy Contact Form (in blue widget) */
 .back-btn {
     display: flex;
     align-items: center;

@@ -42,9 +42,11 @@
         menuPanels: document.querySelectorAll('.menu-panel'),
         // Booking widget
         bookingForm: document.getElementById('reservation-form'),
+        contactStep: document.getElementById('contact-step'),
         contactForm: document.getElementById('contact-form'),
         bookingNext: document.getElementById('booking-next'),
         backToBooking: document.getElementById('back-to-booking'),
+        modifyReservation: document.getElementById('modify-reservation'),
         guestsDisplay: document.getElementById('guests-display'),
         dateDisplay: document.getElementById('date-display'),
         timeDisplay: document.getElementById('time-display'),
@@ -55,6 +57,7 @@
         calendarMonth: document.getElementById('calendar-month'),
         calendarWrapper: document.getElementById('calendar-wrapper'),
         formStatus: document.getElementById('form-status'),
+        dinnerService: document.getElementById('dinner-service'),
         // Summary
         summaryGuests: document.getElementById('summary-guests'),
         summaryDate: document.getElementById('summary-date'),
@@ -409,8 +412,21 @@
 
     function updateTimeSlots(date) {
         const isSunday = date.getDay() === 0;
-        const dinnerSlots = document.querySelectorAll('.time-service:last-child .time-slot');
 
+        // Handle new time-slot-item format (vertical list)
+        const dinnerSlotItems = document.querySelectorAll('#dinner-service .time-slot-item');
+        dinnerSlotItems.forEach(slot => {
+            if (isSunday) {
+                slot.classList.add('disabled');
+                slot.disabled = true;
+            } else {
+                slot.classList.remove('disabled');
+                slot.disabled = false;
+            }
+        });
+
+        // Legacy format support
+        const dinnerSlots = document.querySelectorAll('.time-service:last-child .time-slot');
         dinnerSlots.forEach(slot => {
             if (isSunday) {
                 slot.classList.add('disabled');
@@ -423,8 +439,27 @@
     }
 
     function initTimeSelection() {
-        const timeSlots = document.querySelectorAll('.time-slot');
+        // New vertical list format (time-slot-item)
+        const timeSlotItems = document.querySelectorAll('.time-slot-item');
 
+        timeSlotItems.forEach(slot => {
+            slot.addEventListener('click', () => {
+                if (slot.disabled || slot.classList.contains('disabled')) return;
+
+                const time = slot.dataset.time;
+                bookingState.time = time;
+
+                // Update UI - remove active from all
+                timeSlotItems.forEach(s => s.classList.remove('active'));
+                slot.classList.add('active');
+
+                DOM.timeDisplay.textContent = time;
+                DOM.timeInput.value = time;
+            });
+        });
+
+        // Legacy format support (time-slot)
+        const timeSlots = document.querySelectorAll('.time-slot');
         timeSlots.forEach(slot => {
             slot.addEventListener('click', () => {
                 if (slot.disabled || slot.classList.contains('disabled')) return;
@@ -462,20 +497,40 @@
                 }
 
                 // Update summary
-                DOM.summaryGuests.textContent = `${bookingState.guests} couvert${bookingState.guests > 1 ? 's' : ''}`;
+                DOM.summaryGuests.textContent = `${bookingState.guests}`;
                 DOM.summaryDate.textContent = DOM.dateDisplay.textContent;
                 DOM.summaryTime.textContent = bookingState.time;
 
-                // Show contact form
-                DOM.bookingForm.classList.add('hidden');
-                DOM.contactForm.classList.remove('hidden');
+                // Show contact step (new layout with form + summary)
+                if (DOM.contactStep) {
+                    DOM.bookingForm.classList.add('hidden');
+                    DOM.contactStep.classList.remove('hidden');
+                } else if (DOM.contactForm) {
+                    // Legacy fallback
+                    DOM.bookingForm.classList.add('hidden');
+                    DOM.contactForm.classList.remove('hidden');
+                }
             });
         }
 
         // Back button
         if (DOM.backToBooking) {
             DOM.backToBooking.addEventListener('click', () => {
-                DOM.contactForm.classList.add('hidden');
+                if (DOM.contactStep) {
+                    DOM.contactStep.classList.add('hidden');
+                } else if (DOM.contactForm) {
+                    DOM.contactForm.classList.add('hidden');
+                }
+                DOM.bookingForm.classList.remove('hidden');
+            });
+        }
+
+        // Modify reservation link (in summary panel)
+        if (DOM.modifyReservation) {
+            DOM.modifyReservation.addEventListener('click', () => {
+                if (DOM.contactStep) {
+                    DOM.contactStep.classList.add('hidden');
+                }
                 DOM.bookingForm.classList.remove('hidden');
             });
         }
@@ -496,8 +551,22 @@
         submitBtn.disabled = true;
         submitBtn.textContent = 'Envoi en cours...';
 
+        // Get form fields (support both old and new format)
+        const firstnameField = DOM.contactForm.querySelector('[name="firstname"]');
+        const lastnameField = DOM.contactForm.querySelector('[name="lastname"]');
+        const nameField = DOM.contactForm.querySelector('[name="name"]');
+        const civilityField = DOM.contactForm.querySelector('[name="civility"]:checked');
+
+        let fullName = '';
+        if (firstnameField && lastnameField) {
+            const civility = civilityField ? civilityField.value : '';
+            fullName = `${civility} ${firstnameField.value.trim()} ${lastnameField.value.trim()}`.trim();
+        } else if (nameField) {
+            fullName = nameField.value.trim();
+        }
+
         const formData = {
-            name: DOM.contactForm.querySelector('[name="name"]').value.trim(),
+            name: fullName,
             email: DOM.contactForm.querySelector('[name="email"]').value.trim(),
             phone: DOM.contactForm.querySelector('[name="phone"]').value.trim(),
             date: DOM.dateInput.value,
@@ -533,9 +602,16 @@
                 DOM.dateDisplay.textContent = 'Choisir une date';
                 DOM.timeDisplay.textContent = 'Choisir un horaire';
 
+                // Clear time slot selection
+                document.querySelectorAll('.time-slot-item, .time-slot').forEach(s => s.classList.remove('active'));
+
                 // Go back to booking form after delay
                 setTimeout(() => {
-                    DOM.contactForm.classList.add('hidden');
+                    if (DOM.contactStep) {
+                        DOM.contactStep.classList.add('hidden');
+                    } else {
+                        DOM.contactForm.classList.add('hidden');
+                    }
                     DOM.bookingForm.classList.remove('hidden');
                     DOM.formStatus.style.display = 'none';
                 }, 5000);
