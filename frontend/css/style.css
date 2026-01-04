@@ -467,6 +467,115 @@ address {
     );
 }
 
+/* Hero Split Layout */
+.hero-split .hero-container {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3xl);
+    align-items: center;
+    max-width: var(--container-max);
+    width: 100%;
+    padding: calc(80px + var(--space-3xl)) var(--container-padding) var(--space-3xl);
+}
+
+.hero-split .hero-content {
+    text-align: left;
+    max-width: 600px;
+    padding: 0;
+}
+
+.hero-facade {
+    position: relative;
+    opacity: 0;
+    animation: fadeInRight 1s ease 0.5s forwards;
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.hero-facade .facade-image-container {
+    position: relative;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    max-height: 500px;
+}
+
+.hero-facade .facade-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--transition-slow);
+}
+
+.hero-facade .facade-image-container:hover img {
+    transform: scale(1.02);
+}
+
+.hero-facade .facade-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(10, 10, 10, 0.9), transparent);
+    padding: var(--space-2xl) var(--space-xl) var(--space-lg);
+}
+
+.hero-facade .facade-info {
+    text-align: center;
+}
+
+.hero-facade .facade-address {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+    letter-spacing: 0.05em;
+}
+
+@media (max-width: 992px) {
+    .hero-split .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: var(--space-2xl);
+    }
+
+    .hero-split .hero-content {
+        text-align: center;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .hero-facade {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .hero-facade .facade-image-container {
+        max-height: 350px;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-facade .facade-image-container {
+        max-height: 280px;
+    }
+
+    .hero-facade .facade-address {
+        font-size: var(--font-size-sm);
+    }
+}
+
 .hero-content {
     position: relative;
     z-index: 1;
@@ -561,66 +670,6 @@ address {
     50% { transform: scaleY(0.5); opacity: 0.5; }
 }
 
-/* --------------------------------------------------------------------------
-   Facade Section
-   -------------------------------------------------------------------------- */
-.facade-section {
-    padding: var(--space-3xl) 0;
-    background-color: var(--color-bg-primary);
-}
-
-.facade-wrapper {
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-.facade-image-container {
-    position: relative;
-    border-radius: var(--border-radius-lg);
-    overflow: hidden;
-    box-shadow: var(--shadow-xl);
-}
-
-.facade-image-container img {
-    width: 100%;
-    height: auto;
-    display: block;
-    transition: transform var(--transition-slow);
-}
-
-.facade-image-container:hover img {
-    transform: scale(1.02);
-}
-
-.facade-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(to top, rgba(10, 10, 10, 0.9), transparent);
-    padding: var(--space-2xl) var(--space-xl) var(--space-xl);
-}
-
-.facade-info {
-    text-align: center;
-}
-
-.facade-address {
-    font-family: var(--font-heading);
-    font-size: var(--font-size-lg);
-    color: var(--color-text-primary);
-    letter-spacing: 0.05em;
-}
-
-@media (max-width: 768px) {
-    .facade-section {
-        padding: var(--space-2xl) 0;
-    }
-
-    .facade-address {
-        font-size: var(--font-size-base);
-    }
-}
 
 /* --------------------------------------------------------------------------
    Section Headers
