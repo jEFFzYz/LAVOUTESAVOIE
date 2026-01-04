@@ -1,0 +1,22 @@
+# =============================================================================
+# La Voûte Savoie - Robots.txt
+# Restaurant Gastronomique à Moûtiers, Savoie
+# =============================================================================
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://lavoutesavoie.fr/sitemap.xml
+
+# Block API endpoints from indexing
+Disallow: /api/
+
+# Block admin/config files
+Disallow: /config/
+Disallow: /database/
+Disallow: /backend/
+Disallow: /scripts/
+
+# Block hidden files
+Disallow: /.*
