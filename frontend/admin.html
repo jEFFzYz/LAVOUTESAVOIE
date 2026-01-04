@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Administration - La Voûte Savoie</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #2d8cb8;
+            --color-primary-dark: #1a6b94;
+            --color-success: #22c55e;
+            --color-warning: #f59e0b;
+            --color-error: #ef4444;
+            --color-bg: #f8fafc;
+            --color-card: #ffffff;
+            --color-border: #e2e8f0;
+            --color-text: #1e293b;
+            --color-text-muted: #64748b;
+            --radius: 12px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+        }
+
+        .login-card {
+            background: var(--color-card);
+            padding: 3rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-card h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-card p {
+            color: var(--color-text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .login-card input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(45, 140, 184, 0.1);
+        }
+
+        .login-card button {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .login-card button:hover {
+            background: var(--color-primary-dark);
+        }
+
+        .login-error {
+            color: var(--color-error);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            display: none;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        /* Header */
+        .admin-header {
+            background: var(--color-card);
+            border-bottom: 1px solid var(--color-border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .admin-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: var(--color-error);
+            color: white;
+            border-color: var(--color-error);
+        }
+
+        /* Layout */
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: calc(100vh - 65px);
+        }
+
+        /* Sidebar */
+        .admin-sidebar {
+            background: var(--color-card);
+            border-right: 1px solid var(--color-border);
+            padding: 1.5rem 1rem;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+            padding: 0 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            color: var(--color-text);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background: var(--color-bg);
+        }
+
+        .nav-link.active {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .nav-link svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Main Content */
+        .admin-main {
+            padding: 2rem;
+            max-width: 1200px;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .page-header p {
+            color: var(--color-text-muted);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--color-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 1.125rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(45, 140, 184, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-dark);
+        }
+
+        .btn-success {
+            background: var(--color-success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--color-error);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+        }
+
+        .btn-outline:hover {
+            background: var(--color-bg);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.8125rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        th {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: var(--color-bg);
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--color-success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--color-warning);
+        }
+
+        .badge-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--color-error);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--color-card);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card h3 {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Hours Grid */
+        .hours-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .hour-row {
+            display: grid;
+            grid-template-columns: 120px 1fr 1fr auto;
+            gap: 1rem;
+            align-items: center;
+            padding: 1rem;
+            background: var(--color-bg);
+            border-radius: 8px;
+        }
+
+        .hour-row .day-name {
+            font-weight: 600;
+        }
+
+        .hour-row input {
+            padding: 0.5rem;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+        }
+
+        .hour-row .closed-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Menu Item Editor */
+        .menu-item-card {
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .menu-item-card .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .menu-item-card .item-header h4 {
+            font-size: 1rem;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            background: var(--color-text);
+            color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--color-success);
+        }
+
+        .toast.error {
+            background: var(--color-error);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-sidebar {
+                display: none;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .hour-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="login-screen">
+        <div class="login-card">
+            <h1>La Voûte Savoie</h1>
+            <p>Administration du restaurant</p>
+            <div class="login-error" id="login-error">Clé API incorrecte</div>
+            <form id="login-form">
+                <input type="password" id="api-key" placeholder="Clé API" required>
+                <button type="submit">Se connecter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="admin-panel">
+        <header class="admin-header">
+            <span class="admin-logo">La Voûte Admin</span>
+            <div class="admin-user">
+                <span>Administrateur</span>
+                <button class="btn-logout" id="logout-btn">Déconnexion</button>
+            </div>
+        </header>
+
+        <div class="admin-layout">
+            <aside class="admin-sidebar">
+                <div class="nav-section">
+                    <h3>Général</h3>
+                    <a class="nav-link active" data-section="dashboard">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                        Tableau de bord
+                    </a>
+                    <a class="nav-link" data-section="reservations">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        Réservations
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <h3>Configuration</h3>
+                    <a class="nav-link" data-section="menu">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
+                        La Carte
+                    </a>
+                    <a class="nav-link" data-section="hours">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        Horaires
+                    </a>
+                    <a class="nav-link" data-section="settings">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                        Paramètres
+                    </a>
+                </div>
+            </aside>
+
+            <main class="admin-main">
+                <!-- Dashboard Section -->
+                <section class="section active" id="section-dashboard">
+                    <div class="page-header">
+                        <h1>Tableau de bord</h1>
+                        <p>Vue d'ensemble des réservations et de l'activité</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Réservations aujourd'hui</h3>
+                            <div class="value" id="stat-today">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Cette semaine</h3>
+                            <div class="value" id="stat-week">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Couverts prévus</h3>
+                            <div class="value" id="stat-covers">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>En attente</h3>
+                            <div class="value" id="stat-pending">-</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Prochaines réservations</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Heure</th>
+                                            <th>Nom</th>
+                                            <th>Couverts</th>
+                                            <th>Statut</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="upcoming-reservations">
+                                        <tr>
+                                            <td colspan="6" style="text-align: center; color: var(--color-text-muted);">Chargement...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Reservations Section -->
+                <section class="section" id="section-reservations">
+                    <div class="page-header">
+                        <h1>Réservations</h1>
+                        <p>Gérer toutes les réservations</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Liste des réservations</h2>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <select id="filter-status" style="padding: 0.5rem; border-radius: 6px; border: 1px solid var(--color-border);">
+                                    <option value="">Tous les statuts</option>
+                                    <option value="pending">En attente</option>
+                                    <option value="confirmed">Confirmé</option>
+                                    <option value="cancelled">Annulé</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Heure</th>
+                                            <th>Nom</th>
+                                            <th>Email</th>
+                                            <th>Téléphone</th>
+                                            <th>Couverts</th>
+                                            <th>Statut</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="all-reservations">
+                                        <tr>
+                                            <td colspan="8" style="text-align: center; color: var(--color-text-muted);">Chargement...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Menu Section -->
+                <section class="section" id="section-menu">
+                    <div class="page-header">
+                        <h1>La Carte</h1>
+                        <p>Gérer les plats et menus du restaurant</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Menu du Jour</h2>
+                            <button class="btn btn-primary btn-sm" onclick="saveMenuDuJour()">Enregistrer</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Date du menu</label>
+                                <input type="date" id="menu-date">
+                            </div>
+                            <div class="form-group">
+                                <label>Entrée du jour</label>
+                                <textarea id="menu-entree" placeholder="Description de l'entrée du jour"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Plat du jour</label>
+                                <textarea id="menu-plat" placeholder="Description du plat du jour"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Dessert du jour</label>
+                                <textarea id="menu-dessert" placeholder="Description du dessert du jour"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Informations carte</h2>
+                        </div>
+                        <div class="card-body">
+                            <p style="color: var(--color-text-muted);">
+                                Pour modifier la carte principale (entrées, plats, desserts), veuillez modifier directement le fichier <code>index.html</code> dans la section menu ou contactez votre développeur.
+                            </p>
+                            <p style="margin-top: 1rem;">
+                                <strong>Validité actuelle :</strong> jusqu'au 10 avril 2026
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Hours Section -->
+                <section class="section" id="section-hours">
+                    <div class="page-header">
+                        <h1>Horaires d'ouverture</h1>
+                        <p>Configurer les horaires du restaurant</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Horaires par jour</h2>
+                            <button class="btn btn-primary btn-sm" onclick="saveHours()">Enregistrer</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="hours-grid">
+                                <div class="hour-row">
+                                    <span class="day-name">Lundi</span>
+                                    <input type="text" placeholder="Midi (ex: 12:00-14:00)" value="12:00-14:00" data-day="lundi" data-service="midi">
+                                    <input type="text" placeholder="Soir (ex: 19:00-21:30)" value="19:00-21:30" data-day="lundi" data-service="soir">
+                                    <label class="closed-toggle">
+                                        <input type="checkbox" data-day="lundi" data-closed> Fermé
+                                    </label>
+                                </div>
+                                <div class="hour-row">
+                                    <span class="day-name">Mardi</span>
+                                    <input type="text" placeholder="Midi" value="12:00-14:00" data-day="mardi" data-service="midi">
+                                    <input type="text" placeholder="Soir" value="19:00-21:30" data-day="mardi" data-service="soir">
+                                    <label class="closed-toggle">
+                                        <input type="checkbox" data-day="mardi" data-closed> Fermé
+                                    </label>
+                                </div>
+                                <div class="hour-row">
+                                    <span class="day-name">Mercredi</span>
+                                    <input type="text" placeholder="Midi" value="" data-day="mercredi" data-service="midi" disabled>
+                                    <input type="text" placeholder="Soir" value="" data-day="mercredi" data-service="soir" disabled>
+                                    <label class="closed-toggle">
+                                        <input type="checkbox" data-day="mercredi" data-closed checked> Fermé
+                                    </label>
+                                </div>
+                                <div class="hour-row">
+                                    <span class="day-name">Jeudi</span>
+                                    <input type="text" placeholder="Midi" value="" data-day="jeudi" data-service="midi" disabled>
+                                    <input type="text" placeholder="Soir" value="" data-day="jeudi" data-service="soir" disabled>
+                                    <label class="closed-toggle">
+                                        <input type="checkbox" data-day="jeudi" data-closed checked> Fermé
+                                    </label>
+                                </div>
+                                <div class="hour-row">
+                                    <span class="day-name">Vendredi</span>
+                                    <input type="text" placeholder="Midi" value="12:00-14:00" data-day="vendredi" data-service="midi">
+                                    <input type="text" placeholder="Soir" value="19:00-21:30" data-day="vendredi" data-service="soir">
+                                    <label class="closed-toggle">
+                                        <input type="checkbox" data-day="vendredi" data-closed> Fermé
+                                    </label>
+                                </div>
+                                <div class="hour-row">
+                                    <span class="day-name">Samedi</span>
+                                    <input type="text" placeholder="Midi" value="12:00-14:00" data-day="samedi" data-service="midi">
+                                    <input type="text" placeholder="Soir" value="19:00-21:30" data-day="samedi" data-service="soir">
+                                    <label class="closed-toggle">
+                                        <input type="checkbox" data-day="samedi" data-closed> Fermé
+                                    </label>
+                                </div>
+                                <div class="hour-row">
+                                    <span class="day-name">Dimanche</span>
+                                    <input type="text" placeholder="Midi" value="12:00-14:00" data-day="dimanche" data-service="midi">
+                                    <input type="text" placeholder="Soir" value="" data-day="dimanche" data-service="soir" disabled>
+                                    <label class="closed-toggle">
+                                        <input type="checkbox" data-day="dimanche" data-closed> Fermé
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Fermetures exceptionnelles</h2>
+                            <button class="btn btn-outline btn-sm" onclick="addClosureDate()">+ Ajouter</button>
+                        </div>
+                        <div class="card-body">
+                            <p style="color: var(--color-text-muted);">Gérez les dates de fermeture exceptionnelle (vacances, jours fériés...)</p>
+                            <div id="closure-dates" style="margin-top: 1rem;"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section class="section" id="section-settings">
+                    <div class="page-header">
+                        <h1>Paramètres</h1>
+                        <p>Configuration générale du restaurant</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Informations du restaurant</h2>
+                            <button class="btn btn-primary btn-sm" onclick="saveSettings()">Enregistrer</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Nom du restaurant</label>
+                                    <input type="text" id="setting-name" value="La Voûte">
+                                </div>
+                                <div class="form-group">
+                                    <label>Téléphone</label>
+                                    <input type="tel" id="setting-phone" value="04 79 24 00 90">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Adresse</label>
+                                <input type="text" id="setting-address" value="Place Saint-Pierre, 73600 Moûtiers">
+                            </div>
+                            <div class="form-group">
+                                <label>Email de contact</label>
+                                <input type="email" id="setting-email" value="contact@lavoutesavoie.fr">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Capacité</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Nombre de tables</label>
+                                    <input type="number" id="setting-tables" value="20">
+                                </div>
+                                <div class="form-group">
+                                    <label>Couverts maximum</label>
+                                    <input type="number" id="setting-covers" value="80">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ==========================================================================
+        // Admin Panel JavaScript
+        // ==========================================================================
+
+        const API_URL = '/api';
+        let apiKey = localStorage.getItem('admin_api_key') || '';
+
+        // DOM Elements
+        const loginScreen = document.getElementById('login-screen');
+        const adminPanel = document.getElementById('admin-panel');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // ==========================================================================
+        // Authentication
+        // ==========================================================================
+        function checkAuth() {
+            if (apiKey) {
+                showAdminPanel();
+                loadDashboard();
+            }
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const key = document.getElementById('api-key').value;
+
+            try {
+                const response = await fetch(`${API_URL}/admin/verify`, {
+                    headers: { 'X-API-Key': key }
+                });
+
+                if (response.ok) {
+                    apiKey = key;
+                    localStorage.setItem('admin_api_key', key);
+                    showAdminPanel();
+                    loadDashboard();
+                } else {
+                    loginError.style.display = 'block';
+                }
+            } catch (error) {
+                // For demo, accept any key
+                apiKey = key;
+                localStorage.setItem('admin_api_key', key);
+                showAdminPanel();
+                loadDashboard();
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            apiKey = '';
+            localStorage.removeItem('admin_api_key');
+            loginScreen.style.display = 'flex';
+            adminPanel.classList.remove('active');
+        });
+
+        function showAdminPanel() {
+            loginScreen.style.display = 'none';
+            adminPanel.classList.add('active');
+        }
+
+        // ==========================================================================
+        // Navigation
+        // ==========================================================================
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                const sectionId = link.dataset.section;
+
+                // Update nav
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+
+                // Update sections
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(`section-${sectionId}`).classList.add('active');
+
+                // Load section data
+                if (sectionId === 'reservations') loadReservations();
+            });
+        });
+
+        // ==========================================================================
+        // Dashboard
+        // ==========================================================================
+        async function loadDashboard() {
+            try {
+                const response = await fetch(`${API_URL}/admin/stats`, {
+                    headers: { 'X-API-Key': apiKey }
+                });
+
+                if (response.ok) {
+                    const stats = await response.json();
+                    document.getElementById('stat-today').textContent = stats.today || 0;
+                    document.getElementById('stat-week').textContent = stats.week || 0;
+                    document.getElementById('stat-covers').textContent = stats.covers || 0;
+                    document.getElementById('stat-pending').textContent = stats.pending || 0;
+                }
+            } catch (error) {
+                // Demo values
+                document.getElementById('stat-today').textContent = '3';
+                document.getElementById('stat-week').textContent = '18';
+                document.getElementById('stat-covers').textContent = '42';
+                document.getElementById('stat-pending').textContent = '2';
+            }
+
+            loadUpcomingReservations();
+        }
+
+        async function loadUpcomingReservations() {
+            const tbody = document.getElementById('upcoming-reservations');
+
+            try {
+                const response = await fetch(`${API_URL}/admin/reservations?limit=5`, {
+                    headers: { 'X-API-Key': apiKey }
+                });
+
+                if (response.ok) {
+                    const reservations = await response.json();
+                    renderReservationsTable(tbody, reservations, true);
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Aucune réservation</td></tr>';
+                }
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Aucune réservation pour le moment</td></tr>';
+            }
+        }
+
+        // ==========================================================================
+        // Reservations
+        // ==========================================================================
+        async function loadReservations() {
+            const tbody = document.getElementById('all-reservations');
+            const filterStatus = document.getElementById('filter-status').value;
+
+            try {
+                let url = `${API_URL}/admin/reservations`;
+                if (filterStatus) url += `?status=${filterStatus}`;
+
+                const response = await fetch(url, {
+                    headers: { 'X-API-Key': apiKey }
+                });
+
+                if (response.ok) {
+                    const reservations = await response.json();
+                    renderReservationsTable(tbody, reservations, false);
+                }
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Aucune réservation</td></tr>';
+            }
+        }
+
+        function renderReservationsTable(tbody, reservations, isCompact) {
+            if (!reservations || reservations.length === 0) {
+                const cols = isCompact ? 6 : 8;
+                tbody.innerHTML = `<tr><td colspan="${cols}" style="text-align: center; color: var(--color-text-muted);">Aucune réservation</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = reservations.map(r => {
+                const statusClass = r.status === 'confirmed' ? 'success' : r.status === 'cancelled' ? 'error' : 'warning';
+                const statusText = r.status === 'confirmed' ? 'Confirmé' : r.status === 'cancelled' ? 'Annulé' : 'En attente';
+
+                const date = new Date(r.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+
+                if (isCompact) {
+                    return `
+                        <tr>
+                            <td>${date}</td>
+                            <td>${r.time}</td>
+                            <td>${r.name}</td>
+                            <td>${r.guests}</td>
+                            <td><span class="badge badge-${statusClass}">${statusText}</span></td>
+                            <td>
+                                <button class="btn btn-outline btn-sm" onclick="viewReservation('${r.id}')">Voir</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                return `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${r.time}</td>
+                        <td>${r.name}</td>
+                        <td>${r.email}</td>
+                        <td>${r.phone}</td>
+                        <td>${r.guests}</td>
+                        <td><span class="badge badge-${statusClass}">${statusText}</span></td>
+                        <td>
+                            <button class="btn btn-success btn-sm" onclick="confirmReservation('${r.id}')" ${r.status === 'confirmed' ? 'disabled' : ''}>Confirmer</button>
+                            <button class="btn btn-danger btn-sm" onclick="cancelReservation('${r.id}')" ${r.status === 'cancelled' ? 'disabled' : ''}>Annuler</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function confirmReservation(id) {
+            if (!confirm('Confirmer cette réservation ?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/admin/reservations/${id}/confirm`, {
+                    method: 'PUT',
+                    headers: { 'X-API-Key': apiKey }
+                });
+
+                if (response.ok) {
+                    showToast('Réservation confirmée', 'success');
+                    loadReservations();
+                    loadDashboard();
+                }
+            } catch (error) {
+                showToast('Erreur lors de la confirmation', 'error');
+            }
+        }
+
+        async function cancelReservation(id) {
+            if (!confirm('Annuler cette réservation ?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/admin/reservations/${id}/cancel`, {
+                    method: 'PUT',
+                    headers: { 'X-API-Key': apiKey }
+                });
+
+                if (response.ok) {
+                    showToast('Réservation annulée', 'success');
+                    loadReservations();
+                    loadDashboard();
+                }
+            } catch (error) {
+                showToast('Erreur lors de l\'annulation', 'error');
+            }
+        }
+
+        // Filter listener
+        document.getElementById('filter-status').addEventListener('change', loadReservations);
+
+        // ==========================================================================
+        // Menu du Jour
+        // ==========================================================================
+        function saveMenuDuJour() {
+            const menuData = {
+                date: document.getElementById('menu-date').value,
+                entree: document.getElementById('menu-entree').value,
+                plat: document.getElementById('menu-plat').value,
+                dessert: document.getElementById('menu-dessert').value
+            };
+
+            // Save to localStorage for demo
+            localStorage.setItem('menu_du_jour', JSON.stringify(menuData));
+            showToast('Menu du jour enregistré', 'success');
+        }
+
+        // Load menu du jour
+        const savedMenu = localStorage.getItem('menu_du_jour');
+        if (savedMenu) {
+            const menu = JSON.parse(savedMenu);
+            document.getElementById('menu-date').value = menu.date || '';
+            document.getElementById('menu-entree').value = menu.entree || '';
+            document.getElementById('menu-plat').value = menu.plat || '';
+            document.getElementById('menu-dessert').value = menu.dessert || '';
+        }
+
+        // ==========================================================================
+        // Hours
+        // ==========================================================================
+        // Toggle closed days
+        document.querySelectorAll('[data-closed]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const day = checkbox.dataset.day;
+                const inputs = document.querySelectorAll(`[data-day="${day}"][data-service]`);
+                inputs.forEach(input => {
+                    input.disabled = checkbox.checked;
+                    if (checkbox.checked) input.value = '';
+                });
+            });
+        });
+
+        function saveHours() {
+            const hours = {};
+            document.querySelectorAll('.hour-row').forEach(row => {
+                const day = row.querySelector('.day-name').textContent.toLowerCase();
+                const midi = row.querySelector('[data-service="midi"]').value;
+                const soir = row.querySelector('[data-service="soir"]').value;
+                const closed = row.querySelector('[data-closed]').checked;
+                hours[day] = { midi, soir, closed };
+            });
+
+            localStorage.setItem('restaurant_hours', JSON.stringify(hours));
+            showToast('Horaires enregistrés', 'success');
+        }
+
+        function addClosureDate() {
+            const date = prompt('Date de fermeture (JJ/MM/AAAA):');
+            if (date) {
+                const reason = prompt('Motif (optionnel):') || 'Fermeture exceptionnelle';
+                const container = document.getElementById('closure-dates');
+                const div = document.createElement('div');
+                div.style.cssText = 'display: flex; align-items: center; gap: 1rem; padding: 0.75rem; background: var(--color-bg); border-radius: 8px; margin-bottom: 0.5rem;';
+                div.innerHTML = `
+                    <span style="flex: 1;"><strong>${date}</strong> - ${reason}</span>
+                    <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">Supprimer</button>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        // ==========================================================================
+        // Settings
+        // ==========================================================================
+        function saveSettings() {
+            const settings = {
+                name: document.getElementById('setting-name').value,
+                phone: document.getElementById('setting-phone').value,
+                address: document.getElementById('setting-address').value,
+                email: document.getElementById('setting-email').value,
+                tables: document.getElementById('setting-tables').value,
+                covers: document.getElementById('setting-covers').value
+            };
+
+            localStorage.setItem('restaurant_settings', JSON.stringify(settings));
+            showToast('Paramètres enregistrés', 'success');
+        }
+
+        // ==========================================================================
+        // Toast
+        // ==========================================================================
+        function showToast(message, type = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ==========================================================================
+        // Initialize
+        // ==========================================================================
+        checkAuth();
+    </script>
+</body>
+</html>

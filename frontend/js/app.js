@@ -12,7 +12,21 @@
     const CONFIG = {
         API_URL: '/api',
         SCROLL_OFFSET: 80,
-        ANIMATION_THRESHOLD: 0.1
+        ANIMATION_THRESHOLD: 0.1,
+        CLOSED_DAYS: [3, 4], // Mercredi et Jeudi
+        MONTHS_FR: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+        DAYS_FR: ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
+    };
+
+    // ==========================================================================
+    // State
+    // ==========================================================================
+    const bookingState = {
+        guests: 2,
+        date: null,
+        time: null,
+        currentMonth: new Date().getMonth(),
+        currentYear: new Date().getFullYear()
     };
 
     // ==========================================================================
@@ -26,9 +40,25 @@
         navLinks: document.querySelectorAll('.nav-link'),
         menuTabs: document.querySelectorAll('.menu-tab'),
         menuPanels: document.querySelectorAll('.menu-panel'),
-        reservationForm: document.getElementById('reservation-form'),
+        // Booking widget
+        bookingForm: document.getElementById('reservation-form'),
+        contactForm: document.getElementById('contact-form'),
+        bookingNext: document.getElementById('booking-next'),
+        backToBooking: document.getElementById('back-to-booking'),
+        guestsDisplay: document.getElementById('guests-display'),
+        dateDisplay: document.getElementById('date-display'),
+        timeDisplay: document.getElementById('time-display'),
+        guestsInput: document.getElementById('guests'),
+        dateInput: document.getElementById('date'),
+        timeInput: document.getElementById('time'),
+        calendarGrid: document.getElementById('calendar-grid'),
+        calendarMonth: document.getElementById('calendar-month'),
+        calendarWrapper: document.getElementById('calendar-wrapper'),
         formStatus: document.getElementById('form-status'),
-        dateInput: document.getElementById('date')
+        // Summary
+        summaryGuests: document.getElementById('summary-guests'),
+        summaryDate: document.getElementById('summary-date'),
+        summaryTime: document.getElementById('summary-time')
     };
 
     // ==========================================================================
@@ -42,7 +72,6 @@
             }, 500);
         });
 
-        // Fallback: hide preloader after 3 seconds max
         setTimeout(() => {
             DOM.preloader.classList.add('loaded');
             document.body.style.overflow = '';
@@ -53,12 +82,10 @@
     // Navigation
     // ==========================================================================
     function initNavigation() {
-        // Mobile menu toggle
         if (DOM.navToggle) {
             DOM.navToggle.addEventListener('click', toggleMobileMenu);
         }
 
-        // Close menu on link click
         DOM.navLinks.forEach(link => {
             link.addEventListener('click', () => {
                 closeMobileMenu();
@@ -66,21 +93,17 @@
             });
         });
 
-        // Header scroll effect
         let lastScroll = 0;
         window.addEventListener('scroll', () => {
             const currentScroll = window.pageYOffset;
-
             if (currentScroll > 100) {
                 DOM.header.classList.add('scrolled');
             } else {
                 DOM.header.classList.remove('scrolled');
             }
-
             lastScroll = currentScroll;
         }, { passive: true });
 
-        // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 const targetId = this.getAttribute('href');
@@ -94,7 +117,6 @@
             });
         });
 
-        // Update active link on scroll
         window.addEventListener('scroll', updateActiveNavOnScroll, { passive: true });
     }
 
@@ -152,11 +174,9 @@
             tab.addEventListener('click', () => {
                 const targetPanel = tab.dataset.tab;
 
-                // Update tabs
                 DOM.menuTabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
 
-                // Update panels
                 DOM.menuPanels.forEach(panel => {
                     panel.classList.remove('active');
                     if (panel.id === targetPanel) {
@@ -168,51 +188,327 @@
     }
 
     // ==========================================================================
-    // Reservation Form
+    // Booking Widget (Zenchef Style)
     // ==========================================================================
-    function initReservationForm() {
-        if (!DOM.reservationForm) return;
+    function initBookingWidget() {
+        if (!DOM.bookingForm) return;
 
-        // Set minimum date to today
-        if (DOM.dateInput) {
-            const today = new Date().toISOString().split('T')[0];
-            DOM.dateInput.setAttribute('min', today);
+        // Initialize sections
+        initBookingSections();
+        initGuestsSelection();
+        initDateSelection();
+        initTimeSelection();
+        initBookingNavigation();
+        initContactForm();
 
-            // Set max date to 3 months ahead
-            const maxDate = new Date();
-            maxDate.setMonth(maxDate.getMonth() + 3);
-            DOM.dateInput.setAttribute('max', maxDate.toISOString().split('T')[0]);
+        // Open first section by default
+        document.getElementById('guests-section').classList.add('open');
+    }
+
+    function initBookingSections() {
+        const headers = document.querySelectorAll('.booking-header[data-toggle]');
+
+        headers.forEach(header => {
+            header.addEventListener('click', () => {
+                const targetId = header.dataset.toggle;
+                const section = header.closest('.booking-section');
+                const isOpen = section.classList.contains('open');
+
+                // Close all sections
+                document.querySelectorAll('.booking-section').forEach(s => {
+                    s.classList.remove('open');
+                });
+
+                // Open clicked section if it was closed
+                if (!isOpen) {
+                    section.classList.add('open');
+                }
+            });
+        });
+    }
+
+    function initGuestsSelection() {
+        const guestBtns = document.querySelectorAll('.guest-btn');
+
+        guestBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const guests = parseInt(btn.dataset.guests);
+
+                // Handle "+" button for more than 9 guests
+                if (guests === 10) {
+                    const customGuests = prompt('Nombre de couverts (max 20):', '10');
+                    if (customGuests && !isNaN(customGuests) && customGuests >= 1 && customGuests <= 20) {
+                        bookingState.guests = parseInt(customGuests);
+                    } else {
+                        return;
+                    }
+                } else {
+                    bookingState.guests = guests;
+                }
+
+                // Update UI
+                guestBtns.forEach(b => b.classList.remove('active'));
+                if (guests <= 9) {
+                    btn.classList.add('active');
+                }
+
+                DOM.guestsDisplay.textContent = `${bookingState.guests} couvert${bookingState.guests > 1 ? 's' : ''}`;
+                DOM.guestsInput.value = bookingState.guests;
+
+                // Auto-advance to date
+                setTimeout(() => {
+                    document.querySelectorAll('.booking-section').forEach(s => s.classList.remove('open'));
+                    document.getElementById('date-section').classList.add('open');
+                }, 300);
+            });
+        });
+    }
+
+    function initDateSelection() {
+        // Quick date buttons
+        const quickDateBtns = document.querySelectorAll('.quick-date-btn[data-offset]');
+
+        quickDateBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const offset = parseInt(btn.dataset.offset);
+                const date = new Date();
+                date.setDate(date.getDate() + offset);
+
+                // Check if closed day
+                if (CONFIG.CLOSED_DAYS.includes(date.getDay())) {
+                    alert('Le restaurant est fermé ce jour-là (mercredi et jeudi).');
+                    return;
+                }
+
+                selectDate(date);
+
+                quickDateBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        // Calendar toggle
+        const calendarToggle = document.querySelector('.calendar-toggle');
+        if (calendarToggle) {
+            calendarToggle.addEventListener('click', () => {
+                DOM.calendarWrapper.classList.toggle('show');
+                if (DOM.calendarWrapper.classList.contains('show')) {
+                    renderCalendar();
+                }
+            });
         }
 
-        // Form submission
-        DOM.reservationForm.addEventListener('submit', handleReservationSubmit);
+        // Calendar navigation
+        const prevMonth = document.getElementById('prev-month');
+        const nextMonth = document.getElementById('next-month');
+
+        if (prevMonth) {
+            prevMonth.addEventListener('click', () => {
+                bookingState.currentMonth--;
+                if (bookingState.currentMonth < 0) {
+                    bookingState.currentMonth = 11;
+                    bookingState.currentYear--;
+                }
+                renderCalendar();
+            });
+        }
+
+        if (nextMonth) {
+            nextMonth.addEventListener('click', () => {
+                bookingState.currentMonth++;
+                if (bookingState.currentMonth > 11) {
+                    bookingState.currentMonth = 0;
+                    bookingState.currentYear++;
+                }
+                renderCalendar();
+            });
+        }
+    }
+
+    function renderCalendar() {
+        if (!DOM.calendarGrid) return;
+
+        const year = bookingState.currentYear;
+        const month = bookingState.currentMonth;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Update month display
+        DOM.calendarMonth.textContent = `${CONFIG.MONTHS_FR[month]} ${year}`;
+
+        // Get first day of month and total days
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const startDay = (firstDay.getDay() + 6) % 7; // Monday = 0
+        const totalDays = lastDay.getDate();
+
+        // Max date (3 months ahead)
+        const maxDate = new Date();
+        maxDate.setMonth(maxDate.getMonth() + 3);
+
+        let html = '';
+
+        // Empty cells before first day
+        for (let i = 0; i < startDay; i++) {
+            html += '<button type="button" class="calendar-day empty"></button>';
+        }
+
+        // Days
+        for (let day = 1; day <= totalDays; day++) {
+            const date = new Date(year, month, day);
+            const isPast = date < today;
+            const isTooFar = date > maxDate;
+            const isClosed = CONFIG.CLOSED_DAYS.includes(date.getDay());
+            const isToday = date.toDateString() === today.toDateString();
+            const isSelected = bookingState.date && date.toDateString() === bookingState.date.toDateString();
+
+            let classes = ['calendar-day'];
+            if (isPast || isTooFar || isClosed) classes.push('disabled');
+            if (isToday) classes.push('today');
+            if (isSelected) classes.push('active');
+
+            html += `<button type="button" class="${classes.join(' ')}" data-date="${date.toISOString()}" ${isPast || isTooFar || isClosed ? 'disabled' : ''}>${day}</button>`;
+        }
+
+        DOM.calendarGrid.innerHTML = html;
+
+        // Add click handlers
+        DOM.calendarGrid.querySelectorAll('.calendar-day:not(.disabled):not(.empty)').forEach(dayBtn => {
+            dayBtn.addEventListener('click', () => {
+                const date = new Date(dayBtn.dataset.date);
+                selectDate(date);
+
+                // Update calendar UI
+                DOM.calendarGrid.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('active'));
+                dayBtn.classList.add('active');
+
+                // Clear quick date buttons
+                document.querySelectorAll('.quick-date-btn').forEach(b => b.classList.remove('active'));
+            });
+        });
+    }
+
+    function selectDate(date) {
+        bookingState.date = date;
+
+        const options = { weekday: 'short', day: 'numeric', month: 'short' };
+        const formattedDate = date.toLocaleDateString('fr-FR', options);
+
+        DOM.dateDisplay.textContent = formattedDate;
+        DOM.dateInput.value = date.toISOString().split('T')[0];
+
+        // Update time slots based on date (Sunday = no dinner)
+        updateTimeSlots(date);
+
+        // Auto-advance to time
+        setTimeout(() => {
+            document.querySelectorAll('.booking-section').forEach(s => s.classList.remove('open'));
+            document.getElementById('time-section').classList.add('open');
+        }, 300);
+    }
+
+    function updateTimeSlots(date) {
+        const isSunday = date.getDay() === 0;
+        const dinnerSlots = document.querySelectorAll('.time-service:last-child .time-slot');
+
+        dinnerSlots.forEach(slot => {
+            if (isSunday) {
+                slot.classList.add('disabled');
+                slot.disabled = true;
+            } else {
+                slot.classList.remove('disabled');
+                slot.disabled = false;
+            }
+        });
+    }
+
+    function initTimeSelection() {
+        const timeSlots = document.querySelectorAll('.time-slot');
+
+        timeSlots.forEach(slot => {
+            slot.addEventListener('click', () => {
+                if (slot.disabled || slot.classList.contains('disabled')) return;
+
+                const time = slot.dataset.time;
+                bookingState.time = time;
+
+                // Update UI
+                timeSlots.forEach(s => s.classList.remove('active'));
+                slot.classList.add('active');
+
+                DOM.timeDisplay.textContent = time;
+                DOM.timeInput.value = time;
+            });
+        });
+    }
+
+    function initBookingNavigation() {
+        // Next button (to contact form)
+        if (DOM.bookingNext) {
+            DOM.bookingNext.addEventListener('click', () => {
+                // Validate booking
+                if (!bookingState.date) {
+                    alert('Veuillez sélectionner une date.');
+                    document.querySelectorAll('.booking-section').forEach(s => s.classList.remove('open'));
+                    document.getElementById('date-section').classList.add('open');
+                    return;
+                }
+
+                if (!bookingState.time) {
+                    alert('Veuillez sélectionner un horaire.');
+                    document.querySelectorAll('.booking-section').forEach(s => s.classList.remove('open'));
+                    document.getElementById('time-section').classList.add('open');
+                    return;
+                }
+
+                // Update summary
+                DOM.summaryGuests.textContent = `${bookingState.guests} couvert${bookingState.guests > 1 ? 's' : ''}`;
+                DOM.summaryDate.textContent = DOM.dateDisplay.textContent;
+                DOM.summaryTime.textContent = bookingState.time;
+
+                // Show contact form
+                DOM.bookingForm.classList.add('hidden');
+                DOM.contactForm.classList.remove('hidden');
+            });
+        }
+
+        // Back button
+        if (DOM.backToBooking) {
+            DOM.backToBooking.addEventListener('click', () => {
+                DOM.contactForm.classList.add('hidden');
+                DOM.bookingForm.classList.remove('hidden');
+            });
+        }
+    }
+
+    function initContactForm() {
+        if (!DOM.contactForm) return;
+
+        DOM.contactForm.addEventListener('submit', handleReservationSubmit);
     }
 
     async function handleReservationSubmit(e) {
         e.preventDefault();
 
-        const submitBtn = DOM.reservationForm.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.innerHTML;
+        const submitBtn = DOM.contactForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.textContent;
 
-        // Disable button and show loading
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span>Envoi en cours...</span>';
+        submitBtn.textContent = 'Envoi en cours...';
 
-        // Collect form data
         const formData = {
-            name: DOM.reservationForm.name.value.trim(),
-            email: DOM.reservationForm.email.value.trim(),
-            phone: DOM.reservationForm.phone.value.trim(),
-            date: DOM.reservationForm.date.value,
-            time: DOM.reservationForm.time.value,
-            guests: DOM.reservationForm.guests.value,
-            message: DOM.reservationForm.message.value.trim()
+            name: DOM.contactForm.querySelector('[name="name"]').value.trim(),
+            email: DOM.contactForm.querySelector('[name="email"]').value.trim(),
+            phone: DOM.contactForm.querySelector('[name="phone"]').value.trim(),
+            date: DOM.dateInput.value,
+            time: bookingState.time,
+            guests: bookingState.guests,
+            message: DOM.contactForm.querySelector('[name="message"]').value.trim()
         };
 
-        // Validate
         if (!validateReservation(formData)) {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = originalBtnText;
+            submitBtn.textContent = originalBtnText;
             return;
         }
 
@@ -228,68 +524,48 @@
             const data = await response.json();
 
             if (response.ok && data.success) {
-                showFormStatus('success', 'Votre demande de réservation a été envoyée ! Vous recevrez une confirmation par email sous 24h.');
-                DOM.reservationForm.reset();
+                showFormStatus('success', 'Votre réservation a été envoyée ! Vous recevrez une confirmation par email.');
+
+                // Reset form
+                DOM.contactForm.reset();
+                bookingState.date = null;
+                bookingState.time = null;
+                DOM.dateDisplay.textContent = 'Choisir une date';
+                DOM.timeDisplay.textContent = 'Choisir un horaire';
+
+                // Go back to booking form after delay
+                setTimeout(() => {
+                    DOM.contactForm.classList.add('hidden');
+                    DOM.bookingForm.classList.remove('hidden');
+                    DOM.formStatus.style.display = 'none';
+                }, 5000);
             } else {
                 throw new Error(data.message || 'Une erreur est survenue');
             }
         } catch (error) {
             console.error('Reservation error:', error);
-
-            let errorMessage = 'Une erreur est survenue. Veuillez réessayer ou nous contacter par téléphone.';
-
-            if (error.message.includes('complet') || error.message.includes('disponible')) {
-                errorMessage = error.message;
-            }
-
-            showFormStatus('error', errorMessage);
+            showFormStatus('error', error.message || 'Une erreur est survenue. Veuillez réessayer ou nous contacter par téléphone.');
         } finally {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = originalBtnText;
+            submitBtn.textContent = originalBtnText;
         }
     }
 
     function validateReservation(data) {
-        // Name validation
         if (data.name.length < 2) {
             showFormStatus('error', 'Veuillez entrer un nom valide.');
             return false;
         }
 
-        // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(data.email)) {
             showFormStatus('error', 'Veuillez entrer une adresse email valide.');
             return false;
         }
 
-        // Phone validation (French format)
         const phoneRegex = /^(?:(?:\+|00)33|0)\s*[1-9](?:[\s.-]*\d{2}){4}$/;
         if (!phoneRegex.test(data.phone.replace(/\s/g, ''))) {
             showFormStatus('error', 'Veuillez entrer un numéro de téléphone valide.');
-            return false;
-        }
-
-        // Date validation
-        const selectedDate = new Date(data.date);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        if (selectedDate < today) {
-            showFormStatus('error', 'La date ne peut pas être dans le passé.');
-            return false;
-        }
-
-        // Check if restaurant is closed (Wednesday and Thursday)
-        const dayOfWeek = selectedDate.getDay();
-        if (dayOfWeek === 3 || dayOfWeek === 4) {
-            showFormStatus('error', 'Désolé, le restaurant est fermé le mercredi et le jeudi.');
-            return false;
-        }
-
-        // Check if Sunday dinner
-        if (dayOfWeek === 0 && data.time >= '19:00') {
-            showFormStatus('error', 'Désolé, le restaurant n\'est pas ouvert le dimanche soir.');
             return false;
         }
 
@@ -301,14 +577,12 @@
         DOM.formStatus.textContent = message;
         DOM.formStatus.style.display = 'block';
 
-        // Auto-hide success messages
         if (type === 'success') {
             setTimeout(() => {
                 DOM.formStatus.style.display = 'none';
             }, 10000);
         }
 
-        // Scroll to form status
         DOM.formStatus.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
@@ -316,12 +590,10 @@
     // Scroll Animations
     // ==========================================================================
     function initScrollAnimations() {
-        const revealElements = document.querySelectorAll('.section-header, .about-content, .about-image, .value-card, .menu-item, .menu-card, .gallery-item, .info-card');
+        const revealElements = document.querySelectorAll('.section-header, .about-content, .about-image, .value-card, .menu-item, .menu-card, .gallery-item, .info-card-modern, .maitre-restaurateur-section');
 
-        // Add reveal class
         revealElements.forEach(el => el.classList.add('reveal'));
 
-        // Intersection Observer
         const observerOptions = {
             root: null,
             rootMargin: '0px',
@@ -341,7 +613,7 @@
     }
 
     // ==========================================================================
-    // Gallery Lightbox (Simple implementation)
+    // Gallery Lightbox
     // ==========================================================================
     function initGallery() {
         const galleryItems = document.querySelectorAll('.gallery-item');
@@ -367,7 +639,6 @@
             </div>
         `;
 
-        // Add styles
         const style = document.createElement('style');
         style.textContent = `
             .lightbox {
@@ -417,7 +688,6 @@
         document.body.appendChild(lightbox);
         document.body.style.overflow = 'hidden';
 
-        // Close events
         const closeBtn = lightbox.querySelector('.lightbox-close');
         const overlay = lightbox.querySelector('.lightbox-overlay');
 
@@ -451,56 +721,30 @@
     }
 
     // ==========================================================================
-    // Utility Functions
-    // ==========================================================================
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    function throttle(func, limit) {
-        let inThrottle;
-        return function(...args) {
-            if (!inThrottle) {
-                func.apply(this, args);
-                inThrottle = true;
-                setTimeout(() => inThrottle = false, limit);
-            }
-        };
-    }
-
-    // ==========================================================================
     // Phone Number Formatting
     // ==========================================================================
     function initPhoneFormatting() {
-        const phoneInput = document.getElementById('phone');
-        if (!phoneInput) return;
+        const phoneInputs = document.querySelectorAll('input[type="tel"]');
 
-        phoneInput.addEventListener('input', (e) => {
-            let value = e.target.value.replace(/\D/g, '');
+        phoneInputs.forEach(phoneInput => {
+            phoneInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
 
-            // Format as French phone number
-            if (value.length > 0) {
-                if (value.startsWith('33')) {
-                    value = '0' + value.slice(2);
-                }
-
-                let formatted = '';
-                for (let i = 0; i < value.length && i < 10; i++) {
-                    if (i > 0 && i % 2 === 0) {
-                        formatted += ' ';
+                if (value.length > 0) {
+                    if (value.startsWith('33')) {
+                        value = '0' + value.slice(2);
                     }
-                    formatted += value[i];
+
+                    let formatted = '';
+                    for (let i = 0; i < value.length && i < 10; i++) {
+                        if (i > 0 && i % 2 === 0) {
+                            formatted += ' ';
+                        }
+                        formatted += value[i];
+                    }
+                    e.target.value = formatted;
                 }
-                e.target.value = formatted;
-            }
+            });
         });
     }
 
@@ -511,7 +755,7 @@
         initPreloader();
         initNavigation();
         initMenuTabs();
-        initReservationForm();
+        initBookingWidget();
         initScrollAnimations();
         initGallery();
         initParallax();
@@ -520,7 +764,6 @@
         console.log('%c La Voûte Savoie ', 'background: #c9a962; color: #0a0a0a; font-size: 14px; padding: 10px 20px; font-family: serif;');
     }
 
-    // Run on DOM ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
