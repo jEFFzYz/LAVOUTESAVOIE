@@ -465,6 +465,7 @@
             border-radius: 8px;
             padding: 1rem;
             margin-bottom: 1rem;
+            background: var(--color-bg);
         }
 
         .menu-item-card .item-header {
@@ -476,6 +477,113 @@
 
         .menu-item-card .item-header h4 {
             font-size: 1rem;
+        }
+
+        /* Menu Tabs */
+        .menu-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 0.5rem;
+        }
+
+        .menu-tab {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: transparent;
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.2s;
+        }
+
+        .menu-tab:hover {
+            color: var(--color-text);
+            background: var(--color-bg);
+        }
+
+        .menu-tab.active {
+            color: var(--color-primary);
+            background: var(--color-bg);
+            border-bottom: 2px solid var(--color-primary);
+        }
+
+        .menu-panel {
+            display: none;
+        }
+
+        .menu-panel.active {
+            display: block;
+        }
+
+        .menu-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .menu-item-card .item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .menu-item-card .item-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .menu-item-card .item-description {
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-item-card .item-tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: rgba(45, 140, 184, 0.1);
+            color: var(--color-primary);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .menu-item-card.editing {
+            border-color: var(--color-primary);
+            background: white;
+        }
+
+        .menu-item-card .edit-form {
+            display: none;
+        }
+
+        .menu-item-card.editing .item-display {
+            display: none;
+        }
+
+        .menu-item-card.editing .edit-form {
+            display: block;
+        }
+
+        .add-item-btn {
+            width: 100%;
+            padding: 1rem;
+            border: 2px dashed var(--color-border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-item-btn:hover {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
         }
 
         /* Toast */
@@ -694,6 +802,54 @@
                         <p>Gérer les plats et menus du restaurant</p>
                     </div>
 
+                    <!-- Carte principale -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Carte du Restaurant</h2>
+                            <button class="btn btn-primary btn-sm" onclick="saveMenu()">Enregistrer la carte</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="menu-tabs">
+                                <button class="menu-tab active" data-menu-tab="entrees">Entrées</button>
+                                <button class="menu-tab" data-menu-tab="plats">Plats</button>
+                                <button class="menu-tab" data-menu-tab="desserts">Desserts</button>
+                            </div>
+
+                            <!-- Entrées -->
+                            <div class="menu-panel active" id="panel-entrees">
+                                <div class="menu-items-list" id="list-entrees"></div>
+                                <button class="add-item-btn" onclick="addMenuItem('entrees')">+ Ajouter une entrée</button>
+                            </div>
+
+                            <!-- Plats -->
+                            <div class="menu-panel" id="panel-plats">
+                                <div class="menu-items-list" id="list-plats"></div>
+                                <button class="add-item-btn" onclick="addMenuItem('plats')">+ Ajouter un plat</button>
+                            </div>
+
+                            <!-- Desserts -->
+                            <div class="menu-panel" id="panel-desserts">
+                                <div class="menu-items-list" id="list-desserts"></div>
+                                <button class="add-item-btn" onclick="addMenuItem('desserts')">+ Ajouter un dessert</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Menu Enfant -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Menu Enfant</h2>
+                            <button class="btn btn-primary btn-sm" onclick="saveMenuEnfant()">Enregistrer</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Description du menu enfant</label>
+                                <textarea id="menu-enfant-description" placeholder="Description du menu enfant">Émincés de poulet accompagnés de frites maison ou légumes, boule de glace artisanale et sirop</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Menu du Jour -->
                     <div class="card">
                         <div class="card-header">
                             <h2>Menu du Jour</h2>
@@ -719,17 +875,17 @@
                         </div>
                     </div>
 
+                    <!-- Validité de la carte -->
                     <div class="card">
                         <div class="card-header">
-                            <h2>Informations carte</h2>
+                            <h2>Validité de la carte</h2>
+                            <button class="btn btn-primary btn-sm" onclick="saveMenuValidity()">Enregistrer</button>
                         </div>
                         <div class="card-body">
-                            <p style="color: var(--color-text-muted);">
-                                Pour modifier la carte principale (entrées, plats, desserts), veuillez modifier directement le fichier <code>index.html</code> dans la section menu ou contactez votre développeur.
-                            </p>
-                            <p style="margin-top: 1rem;">
-                                <strong>Validité actuelle :</strong> jusqu'au 10 avril 2026
-                            </p>
+                            <div class="form-group">
+                                <label>Date de validité</label>
+                                <input type="date" id="menu-validity-date" value="2026-04-10">
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -941,6 +1097,7 @@
             loginScreen.style.display = 'none';
             adminPanel.classList.add('active');
             loadHours(); // Load hours configuration from API
+            loadMenu(); // Load menu from API
         }
 
         // ==========================================================================
@@ -1121,10 +1278,221 @@
         document.getElementById('filter-status').addEventListener('change', loadReservations);
 
         // ==========================================================================
+        // Menu Management
+        // ==========================================================================
+
+        // Default menu data (current menu from the website)
+        const DEFAULT_MENU = {
+            entrees: [
+                { id: 1, name: "Foie Gras au Vin de Savoie", description: "Foie gras de canard mi-cuit au cacao et au vin de Savoie (PAKHUS), chutney d'oignons, pain grillé et éclats de cacao", tag: "Signature" },
+                { id: 2, name: "Œuf en Meurette et Crumble de Beaufort", description: "Œuf poché servi dans une sauce champignons et lardons artisanaux de la Maison BAUD au vin rouge, accompagné d'un crumble de Beaufort", tag: "Maison BAUD" },
+                { id: 3, name: "Salade Savoyarde", description: "Croustillant de reblochon fermier, charcuterie de la Maison BAUD, salade verte, tomates séchées et graines torréfiées", tag: "Produits locaux" }
+            ],
+            plats: [
+                { id: 1, name: "Filet de Dorade Royale", description: "Filet de dorade royale grillé, sauce chimichurri maison aux herbes fraîches, risotto de riz sauvage au lait de coco et légumes de saison croquants", tag: "" },
+                { id: 2, name: "Cocotte de Reblochon", description: "Cocotte de reblochon, pommes de terre, salade avec charcuterie de la Maison BAUD (ou sans)", tag: "Spécialité Savoyarde" },
+                { id: 3, name: "Suprême de Poulet Jaune aux Morilles", description: "Suprême de poulet jaune français aux morilles (peut être servi sans), jus léger infusé aux herbes fraîches, pommes de terre grenailles dorées et légumes primeurs", tag: "Origine France" },
+                { id: 4, name: "Faux-filet Montbéliard ou Normand", description: "Faux-filet grillé et tranché, pommes de terre grenailles aux herbes, jeunes légumes de saison et sauce au vin rouge de Savoie parfumée aux herbes fraîches", tag: "Selon arrivage" },
+                { id: 5, name: "Gibier du Moment", description: "Gibier du moment sauce grand veneur, accompagné de sa polenta au Beaufort et légumes de saison", tag: "De saison" }
+            ],
+            desserts: [
+                { id: 1, name: "Parfait Glacé aux Marrons", description: "Parfait glacé onctueux aux marrons, texture fondante", tag: "" },
+                { id: 2, name: "Le Gourmand", description: "Assortiment de mignardises - peut être servi en café gourmand, thé gourmand, digestif gourmand ou champagne gourmand", tag: "Signature" },
+                { id: 3, name: "Pavlova", description: "Meringue croustillante garnie d'une crème légère à la vanille, boule de glace mandarine de Sicile artisanale et fruits frais", tag: "" },
+                { id: 4, name: "Mi-cuit au Chocolat Noir", description: "Mi-cuit au chocolat noir cœur fondant, sorbet fruits rouges et éclats de fèves torréfiées", tag: "" },
+                { id: 5, name: "Assiette de Fromages Savoyards", description: "Sélection de fromages affinés de nos montagnes", tag: "Produits locaux" },
+                { id: 6, name: "Faisselle de Savoie", description: "Faisselle de Savoie au sucre ou au coulis de fruits rouges", tag: "" },
+                { id: 7, name: "Parfait Glacé à la Chartreuse Verte", description: "Parfait glacé à la Chartreuse verte et sa sauce chocolat", tag: "" },
+                { id: 8, name: "Profiteroles Maison", description: "Choux garnis de glace maison au pain d'épice, crème fouettée vanille et sauce au chocolat noir", tag: "Fait maison" }
+            ],
+            menuEnfant: "Émincés de poulet accompagnés de frites maison ou légumes, boule de glace artisanale et sirop",
+            validityDate: "2026-04-10"
+        };
+
+        let menuData = { ...DEFAULT_MENU };
+        let nextItemId = { entrees: 100, plats: 100, desserts: 100 };
+
+        // Menu tabs navigation
+        document.querySelectorAll('[data-menu-tab]').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.dataset.menuTab;
+
+                // Update tabs
+                document.querySelectorAll('[data-menu-tab]').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Update panels
+                document.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
+                document.getElementById(`panel-${tabId}`).classList.add('active');
+            });
+        });
+
+        // Render menu items
+        function renderMenuItems(category) {
+            const container = document.getElementById(`list-${category}`);
+            const items = menuData[category] || [];
+
+            container.innerHTML = items.map(item => `
+                <div class="menu-item-card" data-id="${item.id}">
+                    <div class="item-display">
+                        <div class="item-header">
+                            <div>
+                                <div class="item-name">${item.name}</div>
+                                <div class="item-description">${item.description}</div>
+                                ${item.tag ? `<span class="item-tag">${item.tag}</span>` : ''}
+                            </div>
+                            <div class="item-actions">
+                                <button class="btn btn-outline btn-sm" onclick="editMenuItem('${category}', ${item.id})">Modifier</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteMenuItem('${category}', ${item.id})">Supprimer</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="edit-form">
+                        <div class="form-group">
+                            <label>Nom du plat</label>
+                            <input type="text" class="edit-name" value="${item.name}">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea class="edit-description">${item.description}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Tag (optionnel)</label>
+                            <input type="text" class="edit-tag" value="${item.tag || ''}" placeholder="Ex: Signature, Produits locaux, De saison...">
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-primary btn-sm" onclick="saveEditMenuItem('${category}', ${item.id})">Enregistrer</button>
+                            <button class="btn btn-outline btn-sm" onclick="cancelEditMenuItem('${category}', ${item.id})">Annuler</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editMenuItem(category, id) {
+            const card = document.querySelector(`#list-${category} [data-id="${id}"]`);
+            card.classList.add('editing');
+        }
+
+        function cancelEditMenuItem(category, id) {
+            const card = document.querySelector(`#list-${category} [data-id="${id}"]`);
+            card.classList.remove('editing');
+            renderMenuItems(category); // Reset to original values
+        }
+
+        function saveEditMenuItem(category, id) {
+            const card = document.querySelector(`#list-${category} [data-id="${id}"]`);
+            const name = card.querySelector('.edit-name').value.trim();
+            const description = card.querySelector('.edit-description').value.trim();
+            const tag = card.querySelector('.edit-tag').value.trim();
+
+            if (!name || !description) {
+                showToast('Le nom et la description sont requis', 'error');
+                return;
+            }
+
+            const item = menuData[category].find(i => i.id === id);
+            if (item) {
+                item.name = name;
+                item.description = description;
+                item.tag = tag;
+            }
+
+            card.classList.remove('editing');
+            renderMenuItems(category);
+            showToast('Plat modifié', 'success');
+        }
+
+        function deleteMenuItem(category, id) {
+            if (!confirm('Supprimer ce plat ?')) return;
+
+            menuData[category] = menuData[category].filter(i => i.id !== id);
+            renderMenuItems(category);
+            showToast('Plat supprimé', 'success');
+        }
+
+        function addMenuItem(category) {
+            const newItem = {
+                id: nextItemId[category]++,
+                name: 'Nouveau plat',
+                description: 'Description du plat',
+                tag: ''
+            };
+
+            menuData[category].push(newItem);
+            renderMenuItems(category);
+
+            // Auto-edit the new item
+            setTimeout(() => {
+                editMenuItem(category, newItem.id);
+            }, 100);
+        }
+
+        async function saveMenu() {
+            try {
+                const response = await fetch(`${API_URL}/admin/settings`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': apiKey
+                    },
+                    body: JSON.stringify({ menu: menuData })
+                });
+
+                if (response.ok) {
+                    showToast('Carte enregistrée', 'success');
+                } else {
+                    showToast('Erreur lors de la sauvegarde', 'error');
+                }
+            } catch (error) {
+                console.error('Save menu error:', error);
+                showToast('Erreur lors de la sauvegarde', 'error');
+            }
+        }
+
+        function saveMenuEnfant() {
+            menuData.menuEnfant = document.getElementById('menu-enfant-description').value;
+            saveMenu();
+        }
+
+        function saveMenuValidity() {
+            menuData.validityDate = document.getElementById('menu-validity-date').value;
+            saveMenu();
+        }
+
+        async function loadMenu() {
+            try {
+                const response = await fetch(`${API_URL}/admin/settings`, {
+                    headers: { 'X-API-Key': apiKey }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.data && result.data.menu) {
+                        menuData = result.data.menu;
+                    }
+                }
+            } catch (error) {
+                console.log('Using default menu');
+            }
+
+            // Render all categories
+            renderMenuItems('entrees');
+            renderMenuItems('plats');
+            renderMenuItems('desserts');
+
+            // Load menu enfant
+            document.getElementById('menu-enfant-description').value = menuData.menuEnfant || DEFAULT_MENU.menuEnfant;
+
+            // Load validity date
+            document.getElementById('menu-validity-date').value = menuData.validityDate || DEFAULT_MENU.validityDate;
+        }
+
+        // ==========================================================================
         // Menu du Jour
         // ==========================================================================
         function saveMenuDuJour() {
-            const menuData = {
+            const menuDuJourData = {
                 date: document.getElementById('menu-date').value,
                 entree: document.getElementById('menu-entree').value,
                 plat: document.getElementById('menu-plat').value,
@@ -1132,14 +1500,14 @@
             };
 
             // Save to localStorage for demo
-            localStorage.setItem('menu_du_jour', JSON.stringify(menuData));
+            localStorage.setItem('menu_du_jour', JSON.stringify(menuDuJourData));
             showToast('Menu du jour enregistré', 'success');
         }
 
         // Load menu du jour
-        const savedMenu = localStorage.getItem('menu_du_jour');
-        if (savedMenu) {
-            const menu = JSON.parse(savedMenu);
+        const savedMenuDuJour = localStorage.getItem('menu_du_jour');
+        if (savedMenuDuJour) {
+            const menu = JSON.parse(savedMenuDuJour);
             document.getElementById('menu-date').value = menu.date || '';
             document.getElementById('menu-entree').value = menu.entree || '';
             document.getElementById('menu-plat').value = menu.plat || '';

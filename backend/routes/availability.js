@@ -38,6 +38,55 @@ router.get('/config', async (req, res) => {
 });
 
 /**
+ * GET /api/availability/menu
+ * Get public menu (for frontend display)
+ */
+router.get('/menu', async (req, res) => {
+    try {
+        const config = await ReservationService.getConfig();
+
+        // Default menu if not set
+        const defaultMenu = {
+            entrees: [
+                { id: 1, name: "Foie Gras au Vin de Savoie", description: "Foie gras de canard mi-cuit au cacao et au vin de Savoie (PAKHUS), chutney d'oignons, pain grillé et éclats de cacao", tag: "Signature" },
+                { id: 2, name: "Œuf en Meurette et Crumble de Beaufort", description: "Œuf poché servi dans une sauce champignons et lardons artisanaux de la Maison BAUD au vin rouge, accompagné d'un crumble de Beaufort", tag: "Maison BAUD" },
+                { id: 3, name: "Salade Savoyarde", description: "Croustillant de reblochon fermier, charcuterie de la Maison BAUD, salade verte, tomates séchées et graines torréfiées", tag: "Produits locaux" }
+            ],
+            plats: [
+                { id: 1, name: "Filet de Dorade Royale", description: "Filet de dorade royale grillé, sauce chimichurri maison aux herbes fraîches, risotto de riz sauvage au lait de coco et légumes de saison croquants", tag: "" },
+                { id: 2, name: "Cocotte de Reblochon", description: "Cocotte de reblochon, pommes de terre, salade avec charcuterie de la Maison BAUD (ou sans)", tag: "Spécialité Savoyarde" },
+                { id: 3, name: "Suprême de Poulet Jaune aux Morilles", description: "Suprême de poulet jaune français aux morilles (peut être servi sans), jus léger infusé aux herbes fraîches, pommes de terre grenailles dorées et légumes primeurs", tag: "Origine France" },
+                { id: 4, name: "Faux-filet Montbéliard ou Normand", description: "Faux-filet grillé et tranché, pommes de terre grenailles aux herbes, jeunes légumes de saison et sauce au vin rouge de Savoie parfumée aux herbes fraîches", tag: "Selon arrivage" },
+                { id: 5, name: "Gibier du Moment", description: "Gibier du moment sauce grand veneur, accompagné de sa polenta au Beaufort et légumes de saison", tag: "De saison" }
+            ],
+            desserts: [
+                { id: 1, name: "Parfait Glacé aux Marrons", description: "Parfait glacé onctueux aux marrons, texture fondante", tag: "" },
+                { id: 2, name: "Le Gourmand", description: "Assortiment de mignardises - peut être servi en café gourmand, thé gourmand, digestif gourmand ou champagne gourmand", tag: "Signature" },
+                { id: 3, name: "Pavlova", description: "Meringue croustillante garnie d'une crème légère à la vanille, boule de glace mandarine de Sicile artisanale et fruits frais", tag: "" },
+                { id: 4, name: "Mi-cuit au Chocolat Noir", description: "Mi-cuit au chocolat noir cœur fondant, sorbet fruits rouges et éclats de fèves torréfiées", tag: "" },
+                { id: 5, name: "Assiette de Fromages Savoyards", description: "Sélection de fromages affinés de nos montagnes", tag: "Produits locaux" },
+                { id: 6, name: "Faisselle de Savoie", description: "Faisselle de Savoie au sucre ou au coulis de fruits rouges", tag: "" },
+                { id: 7, name: "Parfait Glacé à la Chartreuse Verte", description: "Parfait glacé à la Chartreuse verte et sa sauce chocolat", tag: "" },
+                { id: 8, name: "Profiteroles Maison", description: "Choux garnis de glace maison au pain d'épice, crème fouettée vanille et sauce au chocolat noir", tag: "Fait maison" }
+            ],
+            menuEnfant: "Émincés de poulet accompagnés de frites maison ou légumes, boule de glace artisanale et sirop",
+            validityDate: "2026-04-10"
+        };
+
+        res.json({
+            success: true,
+            data: config.menu || defaultMenu
+        });
+    } catch (error) {
+        console.error('Menu error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Une erreur est survenue'
+        });
+    }
+});
+
+/**
  * GET /api/availability
  * Check availability for a specific date
  */

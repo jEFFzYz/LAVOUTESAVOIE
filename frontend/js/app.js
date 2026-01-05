@@ -336,6 +336,86 @@
     }
 
     // ==========================================================================
+    // Dynamic Menu Loading
+    // ==========================================================================
+    async function loadMenu() {
+        try {
+            const response = await fetch(`${CONFIG.API_URL}/availability/menu`);
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success && result.data) {
+                    renderMenu(result.data);
+                    updateMenuValidity(result.data.validityDate);
+                    updateMenuEnfant(result.data.menuEnfant);
+                }
+            }
+        } catch (error) {
+            console.log('Using static menu');
+        }
+    }
+
+    function renderMenu(menuData) {
+        // Render Entrées
+        const entreesPanel = document.getElementById('entrees');
+        if (entreesPanel && menuData.entrees) {
+            renderMenuCategory(entreesPanel, menuData.entrees);
+        }
+
+        // Render Plats
+        const platsPanel = document.getElementById('plats');
+        if (platsPanel && menuData.plats) {
+            renderMenuCategory(platsPanel, menuData.plats);
+        }
+
+        // Render Desserts
+        const dessertsPanel = document.getElementById('desserts');
+        if (dessertsPanel && menuData.desserts) {
+            renderMenuCategory(dessertsPanel, menuData.desserts);
+        }
+    }
+
+    function renderMenuCategory(panel, items) {
+        const grid = panel.querySelector('.menu-grid');
+        if (!grid || !items.length) return;
+
+        grid.innerHTML = items.map(item => `
+            <article class="menu-item">
+                <div class="menu-item-header">
+                    <h3>${escapeHtml(item.name)}</h3>
+                </div>
+                <p class="menu-description">${escapeHtml(item.description)}</p>
+                ${item.tag ? `<span class="menu-tag${item.tag.toLowerCase().includes('local') || item.tag.toLowerCase().includes('maison') ? ' local' : ''}">${escapeHtml(item.tag)}</span>` : ''}
+            </article>
+        `).join('');
+    }
+
+    function updateMenuValidity(validityDate) {
+        if (!validityDate) return;
+
+        const description = document.querySelector('.menu .section-description');
+        if (description) {
+            const date = new Date(validityDate);
+            const formattedDate = date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+            description.textContent = `Tous nos plats sont faits maison. Carte valable jusqu'au ${formattedDate}.`;
+        }
+    }
+
+    function updateMenuEnfant(menuEnfantText) {
+        if (!menuEnfantText) return;
+
+        const menuEnfantContent = document.querySelector('.menu-enfant-content p');
+        if (menuEnfantContent) {
+            menuEnfantContent.textContent = menuEnfantText;
+        }
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ==========================================================================
     // Booking Widget (Zenchef Style)
     // ==========================================================================
     function initBookingWidget() {
@@ -980,6 +1060,9 @@
 
         // Load config from API before initializing booking widget
         await loadConfig();
+
+        // Load menu from API
+        await loadMenu();
 
         initBookingWidget();
         initScrollAnimations();
